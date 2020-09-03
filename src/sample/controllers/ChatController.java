@@ -1,17 +1,18 @@
 package sample.controllers;
 
 import javafx.fxml.FXML;
-import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
 
-enum User { SELF, OTHER }
 
 public class ChatController {
+
+    private static final int SEND = 0;
+    private static final int RECEIVE = 1;
 
     @FXML
     Button btnSend;
@@ -20,51 +21,35 @@ public class ChatController {
     TextField chatInput;
 
     @FXML
-    VBox selfContainer;
+    VBox chatContainer;
 
-    @FXML
-    VBox otherContainer;
 
     @FXML
     public void sendMessage() {
-        String chatText = chatInput.getText();
-        String[] classes = {"message-box", "message-box-self"};
-        VBox message = createMessageBlob(chatText, classes, User.SELF);
-        selfContainer.getChildren().add(message);
+        createMessageItem(chatInput.getText(), SEND);
     }
 
+    @FXML
     private void receiveMessage() {
-        String chatText = chatInput.getText();
-        String[] classes = {"message-box", "message-box-other"};
-        VBox message = createMessageBlob(chatText, classes, User.OTHER);
-        otherContainer.getChildren().add(message);
+        createMessageItem(chatInput.getText(), RECEIVE);
     }
 
-    private VBox createMessageBlob(String text, String[] classes, User type) {
-        VBox messageBox = new VBox();
-        Text messageText = new Text(text);
 
-        for (String aClass : classes) {
-            messageBox.getStyleClass().add(aClass);
+    private void createMessageItem(String text, int action) {
+        BorderPane bp = new BorderPane();
+        Label messageText = new Label(text);
+
+        bp.getStyleClass().add("message-wrapper");
+        messageText.getStyleClass().add("message-box");
+
+        if (action == SEND) {
+            messageText.getStyleClass().add("message-box-self");
+            bp.setRight(messageText);
+        } else if (action == RECEIVE) {
+            messageText.getStyleClass().add("message-box-other");
+            bp.setLeft(messageText);
         }
 
-        messageBox.getChildren().add(messageText);
-
-        if (text.length() > 40) {
-            messageBox.setMaxWidth(150);
-            messageText.wrappingWidthProperty().bind(messageBox.maxWidthProperty());
-        } else {
-            messageBox.setMaxSize(VBox.USE_PREF_SIZE, VBox.USE_PREF_SIZE);
-        }
-
-        messageText.getStyleClass().add("message-text");
-
-        if (type == User.SELF) {
-            selfContainer.setAlignment(Pos.BASELINE_RIGHT);
-        } else {
-            otherContainer.setAlignment(Pos.BASELINE_LEFT);
-        }
-
-        return messageBox;
+        chatContainer.getChildren().add(bp);
     }
 }

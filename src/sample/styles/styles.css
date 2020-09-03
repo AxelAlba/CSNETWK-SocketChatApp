@@ -59,6 +59,8 @@ HBox, VBox {
     -fx-padding: 16 24;
     -fx-border-insets: 8px;
     -fx-background-insets: 8px;
+    -fx-max-width: 320;
+    -fx-text-fill: #FFFFFF;
 }
 
 .message-box-other {
@@ -71,6 +73,10 @@ HBox, VBox {
 
 .message-text {
     -fx-fill: #FFFFFF;
+}
+
+.message-wrapper {
+    -fx-padding: 0 32;
 }
 
 #btnLogin {
