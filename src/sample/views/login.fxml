@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<HBox prefHeight="768" prefWidth="1024" styleClass="root" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.controllers.LoginController">
+   <Group layoutX="427.0" layoutY="260.0" styleClass="container" AnchorPane.bottomAnchor="266.0" AnchorPane.topAnchor="266.0">
+      <Label layoutY="6.0" styleClass="bold-text, header" text="Welcome to De La Salle Usap!" />
+      <VBox layoutX="22.0" layoutY="86.0">
+         <Pane styleClass="input-group">
+            <Label styleClass="bold-text, label" text="IP Address" />
+            <TextField fx:id="fIPAddress" styleClass="input" layoutY="40.0" promptText="Enter your IP address here" />
+         </Pane>
+         <Pane styleClass="input-group">
+            <Label styleClass="bold-text, label" text="Port Number" />
+            <TextField fx:id="fPort" styleClass="input" layoutY="40.0" promptText="Ex: 8080 or 8000"  />
+         </Pane>
+         <Pane styleClass="btn-wrapper">
+            <Button fx:id="btnLogin" onMouseClicked="#onLoginClick" styleClass="btn" text="Login" />
+         </Pane>
+      </VBox>
+   </Group>
+</HBox>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.controllers.ChatController">
+   <VBox fx:id="selfContainer" prefHeight="768.0" prefWidth="1024.0" alignment="BASELINE_RIGHT" />
+   <VBox fx:id="otherContainer" prefHeight="768.0" prefWidth="1024.0" alignment="BASELINE_LEFT" />
+   <AnchorPane prefHeight="87.0" prefWidth="714.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+      <TextField fx:id="chatInput" layoutX="25.0" layoutY="142.0" prefHeight="25.0" prefWidth="754.0" styleClass="input" AnchorPane.bottomAnchor="32.0" AnchorPane.leftAnchor="32.0" />
+      <Button fx:id="btnSend" layoutX="657.0" layoutY="161.0" onMouseClicked="#sendMessage" styleClass="btn" text="Send" AnchorPane.bottomAnchor="32.0" AnchorPane.rightAnchor="32.0" />
+   </AnchorPane>
+</AnchorPane>

@@ -1,0 +1,79 @@
+HBox, VBox {
+    -fx-alignment: center;
+}
+
+* {
+    -fx-font-family: "Source Sans Pro", sans-serif;
+    -fx-text-fill: #424242;
+}
+
+.root {
+    -fx-background-color: #DFF1F0;
+}
+
+.container {
+    -fx-alignment: center;
+}
+
+.btn {
+    -fx-background-color: #34C168;
+    -fx-background-radius: 8;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 16;
+    -fx-font-weight: bold;
+    -fx-cursor: pointer;
+}
+
+.btn-wrapper {
+    -fx-padding: 16;
+}
+
+.bold-text {
+    -fx-font-weight: bold;
+}
+
+.label {
+    -fx-font-size: 16;
+}
+
+.input-group {
+    -fx-padding: 8;
+}
+
+.input {
+    -fx-min-height: 32;
+    -fx-min-width: 368;
+    -fx-padding: 8;
+    -fx-font-size: 16;
+}
+
+.header {
+    -fx-font-size: 32;
+    -fx-text-alignment: center;
+    -fx-text-fill: #365354;
+}
+
+.message-box {
+    -fx-font-size: 16;
+    -fx-background-radius: 8;
+    -fx-padding: 16 24;
+    -fx-border-insets: 8px;
+    -fx-background-insets: 8px;
+}
+
+.message-box-other {
+    -fx-background-color: #C2A9A6;
+}
+
+.message-box-self {
+    -fx-background-color: #34C168;
+}
+
+.message-text {
+    -fx-fill: #FFFFFF;
+}
+
+#btnLogin {
+    -fx-pref-height: 32;
+    -fx-pref-width: 368;
+}
