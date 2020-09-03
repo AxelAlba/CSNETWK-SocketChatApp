@@ -1,10 +1,10 @@
-HBox, VBox {
-    -fx-alignment: center;
-}
-
 * {
     -fx-font-family: "Source Sans Pro", sans-serif;
     -fx-text-fill: #424242;
+}
+
+ScrollPane {
+    -fx-background: transparent;
 }
 
 .root {
@@ -24,16 +24,29 @@ HBox, VBox {
     -fx-cursor: pointer;
 }
 
+.btn-link {
+    -fx-background-color: none;
+    -fx-font-weight: normal;
+    -fx-text-fill: #34C168;
+}
+
 .btn-wrapper {
     -fx-padding: 16;
+}
+
+.label {
+    -fx-font-size: 16;
+    -fx-padding: 8;
 }
 
 .bold-text {
     -fx-font-weight: bold;
 }
 
-.label {
-    -fx-font-size: 16;
+.header {
+    -fx-font-size: 32;
+    -fx-text-alignment: center;
+    -fx-text-fill: #365354;
 }
 
 .input-group {
@@ -47,10 +60,20 @@ HBox, VBox {
     -fx-font-size: 16;
 }
 
-.header {
-    -fx-font-size: 32;
-    -fx-text-alignment: center;
-    -fx-text-fill: #365354;
+
+/* Chat */
+.chat-header {
+    -fx-background-color: #ffffff;
+    -fx-effect: dropshadow(three-pass-box, rgba(52,193,104,0.05), 40, 0, 0, 0);
+}
+
+.chat-body {
+    -fx-background-color: transparent;
+    -fx-border-color: none;
+}
+
+.disconnected {
+    -fx-font-style: italic;
 }
 
 .message-box {
@@ -61,6 +84,11 @@ HBox, VBox {
     -fx-background-insets: 8px;
     -fx-max-width: 320;
     -fx-text-fill: #FFFFFF;
+}
+
+.message-image {
+    -fx-pref-height: 30;
+    -fx-pref-width: 30;
 }
 
 .message-box-other {
@@ -78,6 +106,7 @@ HBox, VBox {
 .message-wrapper {
     -fx-padding: 0 32;
 }
+
 
 #btnLogin {
     -fx-pref-height: 32;

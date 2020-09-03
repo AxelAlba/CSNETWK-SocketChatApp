@@ -29,6 +29,9 @@ public class Main extends Application {
         mPrimaryStage.getScene().setRoot(pane);
     }
 
+    public static Stage getPrimaryStage() {
+        return mPrimaryStage;
+    }
 
     public static void main(String[] args) {
         launch(args);

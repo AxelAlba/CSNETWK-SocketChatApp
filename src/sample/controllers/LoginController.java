@@ -15,9 +15,11 @@ public class LoginController {
     private void onLoginClick() throws Exception {
         if (isValidLogin()) {
 //            Main.changeScene("views/matching.fxml");
+//            TODO: View matching screen
+//            TODO: Once client 2 has connected, change scene to chat
             Main.changeScene("views/chat.fxml");
         } else {
-//            TODO: Make error messages
+//            TODO: Add error messages for invalid field/s
         }
     }
 
