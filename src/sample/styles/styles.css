@@ -21,7 +21,10 @@ ScrollPane {
     -fx-text-fill: #FFFFFF;
     -fx-font-size: 16;
     -fx-font-weight: bold;
-    -fx-cursor: pointer;
+}
+
+.btn:hover {
+    -fx-cursor: hand;
 }
 
 .btn-link {

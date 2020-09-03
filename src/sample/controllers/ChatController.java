@@ -1,5 +1,6 @@
 package sample.controllers;
 
+import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
@@ -15,7 +16,11 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import sample.Main;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -25,7 +30,8 @@ public class ChatController implements Initializable {
     private static final int SEND = 0;
     private static final int RECEIVE = 1;
     private static final int IMAGE = 10;
-    private static final int TEXT = 11;
+    private static final int FILE = 11;
+    private static final int TEXT = 12;
 
     @FXML
     Button btnSend;
@@ -44,16 +50,23 @@ public class ChatController implements Initializable {
 
     @FXML
     public void sendMessage() {
-        createMessageItem(TEXT, SEND, chatInput.getText());
+        String messageText = chatInput.getText();
+        if (messageText.length() > 0) {
+            createMessageItem(TEXT, SEND, messageText);
+        }
     }
 
     @FXML
     private void receiveMessage() {
-        createMessageItem(TEXT, RECEIVE, chatInput.getText());
+        String messageText = chatInput.getText();
+        if (messageText.length() > 0) {
+            createMessageItem(TEXT, RECEIVE, messageText);
+        }
     }
 
     @FXML
-    private void uploadFile() {
+    private void uploadImage() {
+//        TODO: If partner is disconnected, disallow sending
         FileChooser fc = new FileChooser();
         Stage stage = Main.getPrimaryStage();
         File file = fc.showOpenDialog(stage);
@@ -61,12 +74,43 @@ public class ChatController implements Initializable {
     }
 
     @FXML
+    private void uploadFile() {
+        FileChooser fc = new FileChooser();
+        Stage stage = Main.getPrimaryStage();
+        File file = fc.showOpenDialog(stage);
+        createMessageItem(FILE, SEND, String.valueOf(file));
+    }
+
+    @FXML
     private void logout() throws Exception {
 //        TODO: Disconnect from server
 //        TODO: Once server has disconnected, show logout screen
-
         Main.changeScene("views/logout.fxml");
     }
+
+    private void downloadImage(Image image) {
+        FileChooser fc = new FileChooser();
+        fc.setTitle("Save File");
+        fc.getExtensionFilters().addAll(
+            new FileChooser.ExtensionFilter("All Files", "*.*"),
+            new FileChooser.ExtensionFilter("Zip Files", "*.zip"),
+            new FileChooser.ExtensionFilter("Portable Document Format", "*.pdf"),
+            new FileChooser.ExtensionFilter("Text Files", "*.txt"),
+            new FileChooser.ExtensionFilter("Images", "*.jpg", "*.png", "*.gif")
+        );
+
+        File savedFile = fc.showSaveDialog(Main.getPrimaryStage());
+        String path = savedFile.getPath();
+
+        File output = new File(path);
+        BufferedImage bImage = SwingFXUtils.fromFXImage(image, null);
+        try {
+            ImageIO.write(bImage, "png", output);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     private void createMessageItem(int messageType, int action, String data) {
         BorderPane bp = new BorderPane();
@@ -77,6 +121,8 @@ public class ChatController implements Initializable {
             message = createImageMessageItem(data);
         } else if (messageType == TEXT) {
             message = createTextMessageItem(data, action);
+        } else if (messageType == FILE) {
+            message = createFileMessageItem(data, action);
         }
 
         if (action == SEND) {
@@ -87,6 +133,7 @@ public class ChatController implements Initializable {
 
         chatContainer.getChildren().add(bp);
     }
+
 
     private Node createTextMessageItem(String text, int action) {
         Label messageText = new Label(text);
@@ -106,22 +153,35 @@ public class ChatController implements Initializable {
     private Node createImageMessageItem(String path) {
         Image image = new Image("file:///" + path);
         ImageView img = new ImageView(image);
-        BorderPane bp = new BorderPane(img);
 
         img.getStyleClass().addAll("message-box, message-image");
-
         img.setFitHeight(150);
         img.setFitWidth(150);
 
-        chatContainer.getChildren().add(bp);
+        setRoundCorners(img, 50);
+        img.setOnMouseClicked(e -> downloadImage(image));
+
         return img;
     }
 
+
+    private Node createFileMessageItem(String path, int action) {
+        File file = new File(path);
+        String filename = file.getName();
+        return createTextMessageItem(filename, action);
+    }
+
+
+    private void setRoundCorners(ImageView image, int value) {
+        Rectangle clip = new Rectangle(image.getFitHeight(), image.getFitWidth());
+        clip.setArcHeight(value);
+        clip.setArcWidth(value);
+        image.setClip(clip);
+    }
+
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        Rectangle clip = new Rectangle(imgProfile.getFitHeight(), imgProfile.getFitWidth());
-        clip.setArcHeight(50);
-        clip.setArcWidth(50);
-        imgProfile.setClip(clip);
+        setRoundCorners(imgProfile, 50);
     }
 }
