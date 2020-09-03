@@ -19,7 +19,6 @@ import sample.Main;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -85,17 +84,13 @@ public class ChatController implements Initializable {
     private void logout() throws Exception {
 //        TODO: Disconnect from server
 //        TODO: Once server has disconnected, show logout screen
-        Main.changeScene("views/logout.fxml");
+        Main.changeScene("views/login.fxml");
     }
 
     private void downloadImage(Image image) {
         FileChooser fc = new FileChooser();
         fc.setTitle("Save File");
         fc.getExtensionFilters().addAll(
-            new FileChooser.ExtensionFilter("All Files", "*.*"),
-            new FileChooser.ExtensionFilter("Zip Files", "*.zip"),
-            new FileChooser.ExtensionFilter("Portable Document Format", "*.pdf"),
-            new FileChooser.ExtensionFilter("Text Files", "*.txt"),
             new FileChooser.ExtensionFilter("Images", "*.jpg", "*.png", "*.gif")
         );
 
@@ -110,7 +105,6 @@ public class ChatController implements Initializable {
             throw new RuntimeException(e);
         }
     }
-
 
     private void createMessageItem(int messageType, int action, String data) {
         BorderPane bp = new BorderPane();

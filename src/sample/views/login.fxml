@@ -1,24 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<HBox prefHeight="768" prefWidth="1024" styleClass="root" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.controllers.LoginController">
-   <Group layoutX="427.0" layoutY="260.0" styleClass="container" AnchorPane.bottomAnchor="266.0" AnchorPane.topAnchor="266.0">
-      <Label layoutY="6.0" styleClass="bold-text, header" text="Welcome to De La Salle Usap!" />
-      <VBox layoutX="22.0" layoutY="86.0">
-         <Pane styleClass="input-group">
-            <Label styleClass="bold-text, label" text="IP Address" />
-            <TextField fx:id="fIPAddress" styleClass="input" layoutY="40.0" promptText="Enter your IP address here" />
-         </Pane>
-         <Pane styleClass="input-group">
-            <Label styleClass="bold-text, label" text="Port Number" />
-            <TextField fx:id="fPort" styleClass="input" layoutY="40.0" promptText="Ex: 8080 or 8000"  />
-         </Pane>
-         <Pane styleClass="btn-wrapper">
-            <Button fx:id="btnLogin" onMouseClicked="#onLoginClick" styleClass="btn" text="Login" />
-         </Pane>
-      </VBox>
-   </Group>
-</HBox>
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="768" prefWidth="1024.0" styleClass="root" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.controllers.LoginController">
+   <right>
+      <AnchorPane prefHeight="768.0" prefWidth="639.0" BorderPane.alignment="CENTER">
+         <VBox alignment="CENTER" layoutX="108.0" layoutY="221.0" prefHeight="326.0" prefWidth="423.0" AnchorPane.bottomAnchor="221.0" AnchorPane.leftAnchor="108.0" AnchorPane.rightAnchor="107.0" AnchorPane.topAnchor="221.0">
+            <Label styleClass="bold-text, header" text="Welcome to De La Salle Usap!" />
+            <VBox>
+               <VBox styleClass="input-group">
+                  <Label styleClass="bold-text, label" text="IP Address" />
+                  <TextField fx:id="fIPAddress" minHeight="-Infinity" minWidth="-Infinity" prefWidth="200.0" promptText="Enter your IP address here" styleClass="input" />
+               </VBox>
+               <VBox styleClass="input-group">
+                  <Label styleClass="bold-text, label" text="Port Number" />
+                  <TextField fx:id="fPort" promptText="Ex: 8080 or 8000" styleClass="input" />
+               </VBox>
+               <VBox styleClass="input-group">
+                  <Button fx:id="btnLogin" onMouseClicked="#onLoginClick" styleClass="btn" text="Login" />
+               </VBox>
+            </VBox>
+         </VBox>
+      </AnchorPane>
+   </right>
+   <left>
+      <ImageView>
+         <Image url="@../assets/DLSU.jpg" />
+      </ImageView>
+   </left>
+</BorderPane>

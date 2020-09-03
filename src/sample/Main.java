@@ -14,9 +14,10 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception {
         mPrimaryStage = primaryStage;
 
-        Parent root = FXMLLoader.load(getClass().getResource("views/chat.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("views/login.fxml"));
         Scene scene = new Scene(root, 1024, 768);
         scene.getStylesheets().add(getClass().getResource("styles/styles.css").toExternalForm());
+        scene.getStylesheets().add(getClass().getResource("styles/scrollbar.css").toExternalForm());
 
         mPrimaryStage.setTitle("De La Salle Usap");
         mPrimaryStage.setScene(scene);

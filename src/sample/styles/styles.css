@@ -1,10 +1,12 @@
 * {
+    -fx-font-smoothing-type: gray;
     -fx-font-family: "Source Sans Pro", sans-serif;
     -fx-text-fill: #424242;
 }
 
 ScrollPane {
     -fx-background: transparent;
+    -fx-padding: 16;
 }
 
 .root {
@@ -39,7 +41,7 @@ ScrollPane {
 
 .label {
     -fx-font-size: 16;
-    -fx-padding: 8;
+    -fx-padding: 8 0;
 }
 
 .bold-text {
@@ -108,10 +110,4 @@ ScrollPane {
 
 .message-wrapper {
     -fx-padding: 0 32;
-}
-
-
-#btnLogin {
-    -fx-pref-height: 32;
-    -fx-pref-width: 368;
 }
