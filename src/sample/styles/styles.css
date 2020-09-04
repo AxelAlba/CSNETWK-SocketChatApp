@@ -6,7 +6,6 @@
 
 ScrollPane {
     -fx-background: transparent;
-    -fx-padding: 16;
 }
 
 .root {
@@ -91,9 +90,12 @@ ScrollPane {
     -fx-text-fill: #FFFFFF;
 }
 
-.message-image {
-    -fx-pref-height: 30;
-    -fx-pref-width: 30;
+.message-image-wrapper {
+    -fx-padding: 16 0;
+}
+
+.message-image:hover {
+    -fx-cursor: hand;
 }
 
 .message-box-other {
@@ -110,4 +112,8 @@ ScrollPane {
 
 .message-wrapper {
     -fx-padding: 0 32;
+}
+
+#chatContainer {
+    -fx-padding: 16 0;
 }

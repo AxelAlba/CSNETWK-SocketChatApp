@@ -1,8 +1,11 @@
 package sample.controllers;
 
 import javafx.embed.swing.SwingFXUtils;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Rectangle2D;
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -10,6 +13,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
@@ -47,11 +52,13 @@ public class ChatController implements Initializable {
     @FXML
     ImageView imgProfile;
 
+
     @FXML
     public void sendMessage() {
         String messageText = chatInput.getText();
         if (messageText.length() > 0) {
             createMessageItem(TEXT, SEND, messageText);
+            chatInput.clear();
         }
     }
 
@@ -145,19 +152,33 @@ public class ChatController implements Initializable {
 
 
     private Node createImageMessageItem(String path) {
+        final double SCALE_FACTOR = 200;
+        double height, width;
         Image image = new Image("file:///" + path);
         ImageView img = new ImageView(image);
+        VBox wrapper = new VBox(img);
 
-        img.getStyleClass().addAll("message-box, message-image");
-        img.setFitHeight(150);
-        img.setFitWidth(150);
+        if (image.getHeight() > image.getWidth()) {
+            height = image.getHeight() * SCALE_FACTOR / image.getWidth();
+            width = SCALE_FACTOR;
+        } else {
+            height = SCALE_FACTOR;
+            width = image.getWidth() * SCALE_FACTOR / image.getHeight();
+        }
+
+        wrapper.getStyleClass().add("message-image-wrapper");
+        img.getStyleClass().add("message-image");
+        img.setFitHeight(height);
+        img.setFitWidth(width);
+        img.setSmooth(true);
+        img.setPreserveRatio(true);
+        img.setCache(true);
 
         setRoundCorners(img, 50);
         img.setOnMouseClicked(e -> downloadImage(image));
 
-        return img;
+        return wrapper;
     }
-
 
     private Node createFileMessageItem(String path, int action) {
         File file = new File(path);
@@ -167,7 +188,7 @@ public class ChatController implements Initializable {
 
 
     private void setRoundCorners(ImageView image, int value) {
-        Rectangle clip = new Rectangle(image.getFitHeight(), image.getFitWidth());
+        Rectangle clip = new Rectangle(image.getFitWidth(), image.getFitHeight());
         clip.setArcHeight(value);
         clip.setArcWidth(value);
         image.setClip(clip);
