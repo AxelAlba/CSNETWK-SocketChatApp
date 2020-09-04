@@ -4,6 +4,7 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -52,6 +53,8 @@ public class ChatController implements Initializable {
     @FXML
     ImageView imgProfile;
 
+    @FXML
+    BorderPane imageViewer;
 
     @FXML
     public void sendMessage() {
@@ -113,6 +116,12 @@ public class ChatController implements Initializable {
         }
     }
 
+    private void viewImage(ImageView img) {
+        imageViewer.setCenter(img);
+        imageViewer.toFront();
+        imageViewer.setOnMouseClicked(e -> imageViewer.toBack());
+    }
+
     private void createMessageItem(int messageType, int action, String data) {
         BorderPane bp = new BorderPane();
         Node message = null;
@@ -152,18 +161,18 @@ public class ChatController implements Initializable {
 
 
     private Node createImageMessageItem(String path) {
-        final double SCALE_FACTOR = 200;
+        final double X = 200, LARGER_X = 400;
         double height, width;
         Image image = new Image("file:///" + path);
         ImageView img = new ImageView(image);
         VBox wrapper = new VBox(img);
 
         if (image.getHeight() > image.getWidth()) {
-            height = image.getHeight() * SCALE_FACTOR / image.getWidth();
-            width = SCALE_FACTOR;
+            height = image.getHeight() * X / image.getWidth();
+            width = X;
         } else {
-            height = SCALE_FACTOR;
-            width = image.getWidth() * SCALE_FACTOR / image.getHeight();
+            height = X;
+            width = image.getWidth() * X / image.getHeight();
         }
 
         wrapper.getStyleClass().add("message-image-wrapper");
@@ -175,7 +184,23 @@ public class ChatController implements Initializable {
         img.setCache(true);
 
         setRoundCorners(img, 50);
-        img.setOnMouseClicked(e -> downloadImage(image));
+
+
+        ImageView enlarged = new ImageView(image);
+        if (image.getHeight() > image.getWidth()) {
+            height = image.getHeight() * LARGER_X / image.getWidth();
+            width = LARGER_X;
+        } else {
+            height = LARGER_X;
+            width = image.getWidth() * LARGER_X / image.getHeight();
+        }
+        enlarged.setFitHeight(height);
+        enlarged.setFitWidth(width);
+        enlarged.setSmooth(true);
+        enlarged.setPreserveRatio(true);
+        enlarged.setCache(true);
+
+        img.setOnMouseClicked(e -> viewImage(enlarged));
 
         return wrapper;
     }

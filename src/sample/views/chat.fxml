@@ -4,18 +4,22 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.controllers.ChatController">
-   <AnchorPane prefWidth="1024.0" styleClass="chat-header" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-      <ImageView fx:id="imgProfile" fitHeight="51.0" fitWidth="52.0" layoutX="25.0" layoutY="8.0" preserveRatio="true" AnchorPane.bottomAnchor="8.0" AnchorPane.leftAnchor="32.0" AnchorPane.topAnchor="8.0">
-         <Image url="@../assets/girl.PNG" />
-      </ImageView>
-      <Label layoutX="92.0" layoutY="25.0" styleClass="label, bold-text" text="Chat Mate" AnchorPane.bottomAnchor="8.0" AnchorPane.topAnchor="8.0" />
-      <Button fx:id="btnLogout" layoutX="937.0" layoutY="21.0" onMouseClicked="#logout" styleClass="btn, btn-link" text="Log Out" AnchorPane.bottomAnchor="8.0" AnchorPane.rightAnchor="28.0" AnchorPane.topAnchor="8.0" />
-   </AnchorPane>
-   <ScrollPane hbarPolicy="NEVER" layoutY="125.0" prefHeight="547.0" prefWidth="1024.0" styleClass="chat-body" AnchorPane.bottomAnchor="96.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="64.0">
-      <VBox fx:id="chatContainer" prefHeight="604.0" prefWidth="1021.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-   </ScrollPane>
-   <AnchorPane prefHeight="87.0" prefWidth="714.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+
+<StackPane prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.controllers.ChatController">
+   <BorderPane fx:id="imageViewer" prefHeight="768" prefWidth="1024" />
+   <AnchorPane prefHeight="768.0" prefWidth="1024.0" styleClass="root" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+      <AnchorPane prefWidth="1024.0" styleClass="chat-header" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <ImageView fx:id="imgProfile" fitHeight="51.0" fitWidth="52.0" layoutX="25.0" layoutY="8.0" preserveRatio="true" AnchorPane.bottomAnchor="8.0" AnchorPane.leftAnchor="32.0" AnchorPane.topAnchor="8.0">
+            <Image url="@../assets/girl.PNG" />
+         </ImageView>
+         <Label layoutX="92.0" layoutY="25.0" styleClass="label, bold-text" text="Chat Mate" AnchorPane.bottomAnchor="8.0" AnchorPane.topAnchor="8.0" />
+         <Button fx:id="btnLogout" layoutX="937.0" layoutY="21.0" onMouseClicked="#logout" styleClass="btn, btn-link" text="Log Out" AnchorPane.bottomAnchor="8.0" AnchorPane.rightAnchor="28.0" AnchorPane.topAnchor="8.0" />
+      </AnchorPane>
+
+      <ScrollPane hbarPolicy="NEVER" layoutY="125.0" prefHeight="547.0" prefWidth="1024.0" styleClass="chat-body" AnchorPane.bottomAnchor="96.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="64.0">
+         <VBox fx:id="chatContainer" prefHeight="604.0" prefWidth="1021.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+      </ScrollPane>
+      <AnchorPane prefHeight="87.0" prefWidth="714.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
       <ImageView fitHeight="25.0" fitWidth="24.0" layoutX="21.0" layoutY="34.0" onMouseClicked="#uploadFile" pickOnBounds="true" preserveRatio="true" styleClass="btn" AnchorPane.bottomAnchor="32.0" AnchorPane.leftAnchor="32.0" AnchorPane.topAnchor="32.0">
          <Image url="@../assets/file.png" />
       </ImageView>
@@ -25,4 +29,6 @@
       <TextField fx:id="chatInput" layoutX="132.0" layoutY="142.0" prefHeight="25.0" prefWidth="791.0" styleClass="input" onAction="#sendMessage" AnchorPane.bottomAnchor="32.0" AnchorPane.leftAnchor="120.0" AnchorPane.topAnchor="32.0" />
       <Button fx:id="btnSend" layoutX="657.0" layoutY="161.0" onMouseClicked="#sendMessage" styleClass="btn" text="Send" AnchorPane.bottomAnchor="32.0" AnchorPane.rightAnchor="32.0" AnchorPane.topAnchor="32.0" />
    </AnchorPane>
-</AnchorPane>
+   </AnchorPane>
+</StackPane>
+

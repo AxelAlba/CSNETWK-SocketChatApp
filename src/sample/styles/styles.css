@@ -117,3 +117,7 @@ ScrollPane {
 #chatContainer {
     -fx-padding: 16 0;
 }
+
+#imageViewer {
+    -fx-background-color: #000000DE;
+}
