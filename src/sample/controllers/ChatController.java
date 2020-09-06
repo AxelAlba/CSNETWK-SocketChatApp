@@ -1,12 +1,8 @@
 package sample.controllers;
 
 import javafx.embed.swing.SwingFXUtils;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Pos;
-import javafx.geometry.Rectangle2D;
-import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -14,8 +10,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
@@ -49,6 +43,12 @@ public class ChatController implements Initializable {
 
     @FXML
     Button btnLogout;
+
+    @FXML
+    ImageView btnDownload;
+
+    @FXML
+    Label textDownload;
 
     @FXML
     ImageView imgProfile;
@@ -120,6 +120,8 @@ public class ChatController implements Initializable {
         imageViewer.setCenter(img);
         imageViewer.toFront();
         imageViewer.setOnMouseClicked(e -> imageViewer.toBack());
+        textDownload.setOnMouseClicked(e -> downloadImage(img.getImage()));
+        btnDownload.setOnMouseClicked(e -> downloadImage(img.getImage()));
     }
 
     private void createMessageItem(int messageType, int action, String data) {
@@ -144,12 +146,10 @@ public class ChatController implements Initializable {
         chatContainer.getChildren().add(bp);
     }
 
-
     private Node createTextMessageItem(String text, int action) {
         Label messageText = new Label(text);
-
         messageText.getStyleClass().add("message-box");
-
+        messageText.setWrapText(true);
         if (action == SEND) {
             messageText.getStyleClass().add("message-box-self");
         } else if (action == RECEIVE) {
@@ -158,7 +158,6 @@ public class ChatController implements Initializable {
 
         return messageText;
     }
-
 
     private Node createImageMessageItem(String path) {
         final double X = 200, LARGER_X = 400;
@@ -176,7 +175,7 @@ public class ChatController implements Initializable {
         }
 
         wrapper.getStyleClass().add("message-image-wrapper");
-        img.getStyleClass().add("message-image");
+        img.getStyleClass().add("cursor-hand");
         img.setFitHeight(height);
         img.setFitWidth(width);
         img.setSmooth(true);
@@ -211,14 +210,12 @@ public class ChatController implements Initializable {
         return createTextMessageItem(filename, action);
     }
 
-
     private void setRoundCorners(ImageView image, int value) {
         Rectangle clip = new Rectangle(image.getFitWidth(), image.getFitHeight());
         clip.setArcHeight(value);
         clip.setArcWidth(value);
         image.setClip(clip);
     }
-
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {

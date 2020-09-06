@@ -8,6 +8,10 @@ ScrollPane {
     -fx-background: transparent;
 }
 
+TextInput {
+    -fx-background-radius: 8;
+}
+
 .root {
     -fx-background-color: #DFF1F0;
 }
@@ -65,10 +69,14 @@ ScrollPane {
 }
 
 
+.cursor-hand {
+    -fx-cursor: hand;
+}
+
 /* Chat */
 .chat-header {
     -fx-background-color: #ffffff;
-    -fx-effect: dropshadow(three-pass-box, rgba(52,193,104,0.05), 40, 0, 0, 0);
+    -fx-effect: dropshadow(three-pass-box, rgba(52,193,104,0.2), 20, 0, 0, 0);
 }
 
 .chat-body {
@@ -114,10 +122,22 @@ ScrollPane {
     -fx-padding: 0 32;
 }
 
+.text-white {
+    -fx-text-fill: #FFFFFF;
+}
+
 #chatContainer {
     -fx-padding: 16 0;
 }
 
 #imageViewer {
     -fx-background-color: #000000DE;
+}
+
+#btnDownload {
+    -fx-padding: 16 16 16 0;
+}
+
+#textDownload {
+    -fx-padding: 16;
 }
