@@ -9,9 +9,7 @@ import java.util.ResourceBundle;
 public class MatchingController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-//    TODO: If match found, switch scene to chat
-        boolean matchFound = false;
-//        Server code to set matchFound to true
+        boolean matchFound = Server.getActiveClients().size() == 2;
         if (matchFound) {
             try {
                 Main.changeScene("views/chat.fxml");

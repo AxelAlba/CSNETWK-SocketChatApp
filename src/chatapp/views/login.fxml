@@ -11,6 +11,10 @@
             <Label styleClass="bold-text, header" text="Welcome to De La Salle Usap!" />
             <VBox>
                <VBox styleClass="input-group">
+                  <Label styleClass="bold-text, label" text="Username" />
+                  <TextField fx:id="fUsername" promptText="Enter your desired username" styleClass="input" />
+               </VBox>
+               <VBox styleClass="input-group">
                   <Label styleClass="bold-text, label" text="IP Address" />
                   <TextField fx:id="fIPAddress" minHeight="-Infinity" minWidth="-Infinity" prefWidth="200.0" promptText="Enter your IP address here" styleClass="input" />
                </VBox>

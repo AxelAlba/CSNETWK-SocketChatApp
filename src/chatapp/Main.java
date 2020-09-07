@@ -6,7 +6,6 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-
 public class Main extends Application {
     private static Stage mPrimaryStage;
 
@@ -14,7 +13,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception {
         mPrimaryStage = primaryStage;
 
-        Parent root = FXMLLoader.load(getClass().getResource("views/chat.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("views/login.fxml"));
         Scene scene = new Scene(root, 1024, 768);
         scene.getStylesheets().add(getClass().getResource("styles/styles.css").toExternalForm());
         scene.getStylesheets().add(getClass().getResource("styles/scrollbar.css").toExternalForm());
