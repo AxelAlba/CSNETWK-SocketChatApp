@@ -1,25 +1,19 @@
-package sample.controllers;
+package chatapp.controllers;
 
-import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import sample.Main;
+import chatapp.Main;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -75,7 +69,6 @@ public class ChatController implements Initializable {
 
     @FXML
     private void uploadImage() {
-//        TODO: If partner is disconnected, disallow sending
         FileChooser fc = new FileChooser();
         Stage stage = Main.getPrimaryStage();
         File file = fc.showOpenDialog(stage);
@@ -92,36 +85,17 @@ public class ChatController implements Initializable {
 
     @FXML
     private void logout() throws Exception {
-//        TODO: Disconnect from server
-//        TODO: Once server has disconnected, show logout screen
         Main.changeScene("views/login.fxml");
-    }
-
-    private void downloadImage(Image image) {
-        FileChooser fc = new FileChooser();
-        fc.setTitle("Save File");
-        fc.getExtensionFilters().addAll(
-            new FileChooser.ExtensionFilter("Images", "*.jpg", "*.png", "*.gif")
-        );
-
-        File savedFile = fc.showSaveDialog(Main.getPrimaryStage());
-        String path = savedFile.getPath();
-
-        File output = new File(path);
-        BufferedImage bImage = SwingFXUtils.fromFXImage(image, null);
-        try {
-            ImageIO.write(bImage, "png", output);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private void viewImage(ImageView img) {
         imageViewer.setCenter(img);
         imageViewer.toFront();
         imageViewer.setOnMouseClicked(e -> imageViewer.toBack());
-        textDownload.setOnMouseClicked(e -> downloadImage(img.getImage()));
-        btnDownload.setOnMouseClicked(e -> downloadImage(img.getImage()));
+
+        ImageObject imageFile = new ImageObject(img);
+        textDownload.setOnMouseClicked(e -> imageFile.downloadImage());
+        btnDownload.setOnMouseClicked(e -> imageFile.downloadImage());
     }
 
     private void createMessageItem(int messageType, int action, String data) {
@@ -160,48 +134,12 @@ public class ChatController implements Initializable {
     }
 
     private Node createImageMessageItem(String path) {
-        final double X = 200, LARGER_X = 400;
-        double height, width;
-        Image image = new Image("file:///" + path);
-        ImageView img = new ImageView(image);
-        VBox wrapper = new VBox(img);
+        ImageObject imgObject = new ImageObject(path, 200.0, true);
+        ImageObject enlarged = new ImageObject(path, 400.0, false);
+        Node message = imgObject.createImageMessageItem();
+        message.setOnMouseClicked(e -> viewImage(enlarged.getImageView()));
 
-        if (image.getHeight() > image.getWidth()) {
-            height = image.getHeight() * X / image.getWidth();
-            width = X;
-        } else {
-            height = X;
-            width = image.getWidth() * X / image.getHeight();
-        }
-
-        wrapper.getStyleClass().add("message-image-wrapper");
-        img.getStyleClass().add("cursor-hand");
-        img.setFitHeight(height);
-        img.setFitWidth(width);
-        img.setSmooth(true);
-        img.setPreserveRatio(true);
-        img.setCache(true);
-
-        setRoundCorners(img, 50);
-
-
-        ImageView enlarged = new ImageView(image);
-        if (image.getHeight() > image.getWidth()) {
-            height = image.getHeight() * LARGER_X / image.getWidth();
-            width = LARGER_X;
-        } else {
-            height = LARGER_X;
-            width = image.getWidth() * LARGER_X / image.getHeight();
-        }
-        enlarged.setFitHeight(height);
-        enlarged.setFitWidth(width);
-        enlarged.setSmooth(true);
-        enlarged.setPreserveRatio(true);
-        enlarged.setCache(true);
-
-        img.setOnMouseClicked(e -> viewImage(enlarged));
-
-        return wrapper;
+        return message;
     }
 
     private Node createFileMessageItem(String path, int action) {
@@ -210,15 +148,8 @@ public class ChatController implements Initializable {
         return createTextMessageItem(filename, action);
     }
 
-    private void setRoundCorners(ImageView image, int value) {
-        Rectangle clip = new Rectangle(image.getFitWidth(), image.getFitHeight());
-        clip.setArcHeight(value);
-        clip.setArcWidth(value);
-        image.setClip(clip);
-    }
-
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        setRoundCorners(imgProfile, 50);
+        ImageObject.setRoundCorners(imgProfile, 50);
     }
 }

@@ -4,7 +4,7 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="768" prefWidth="1024.0" styleClass="root" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.controllers.LoginController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="768" prefWidth="1024.0" styleClass="root" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="chatapp.controllers.LoginController">
    <right>
       <AnchorPane prefHeight="768.0" prefWidth="639.0" BorderPane.alignment="CENTER">
          <VBox alignment="CENTER" layoutX="108.0" layoutY="221.0" prefHeight="326.0" prefWidth="423.0" AnchorPane.bottomAnchor="221.0" AnchorPane.leftAnchor="108.0" AnchorPane.rightAnchor="107.0" AnchorPane.topAnchor="221.0">

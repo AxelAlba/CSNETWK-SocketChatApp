@@ -1,7 +1,7 @@
-package sample.controllers;
+package chatapp.controllers;
 
 import javafx.fxml.Initializable;
-import sample.Main;
+import chatapp.Main;
 
 import java.net.URL;
 import java.util.ResourceBundle;

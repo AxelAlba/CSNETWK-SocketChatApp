@@ -1,8 +1,8 @@
-package sample.controllers;
+package chatapp.controllers;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
-import sample.Main;
+import chatapp.Main;
 
 import java.util.regex.Pattern;
 
