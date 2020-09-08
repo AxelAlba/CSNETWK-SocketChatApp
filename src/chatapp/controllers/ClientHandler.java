@@ -102,7 +102,7 @@ public class ClientHandler implements Runnable {
                         .orElse(null);
 
                 if (client1 != null) {
-                    Server.log("Server: " + this.name + " sent \"" + messageToSend + "\" to " + client1.name, Server.getTimeStamp());
+//                    Server.log("Server: " + this.name + " sent \"" + messageToSend + "\" to " + client1.name, Server.getTimeStamp());
                     client1.writer.writeUTF(this.name + ": " + messageToSend);
                 }
             } catch (IOException e) {

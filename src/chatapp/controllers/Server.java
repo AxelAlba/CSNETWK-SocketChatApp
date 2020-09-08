@@ -19,12 +19,36 @@ public class Server implements Runnable {
     private static DataInputStream reader;
     private static DataOutputStream writer;
 
-    private static void initialize(int port) throws IOException {
+    private static Server mInstance = null;
+    private static boolean isActive = false;
+
+    public Server(int port) {
         mPort = port;
-        ServerSocket serverSocket = new ServerSocket(port);
+        isActive = true;
+    }
+
+    private static void init() throws IOException {
+        System.out.println("Instance running");
+        ServerSocket serverSocket = new ServerSocket(mPort);
         serverEndpoint = serverSocket.accept();
         reader = new DataInputStream(serverEndpoint.getInputStream());
         writer = new DataOutputStream(serverEndpoint.getOutputStream());
+    }
+
+//    public static Server getInstance(int port) {
+//        if (mInstance == null) {
+//            return new Server(port);
+//        } else {
+//            return mInstance;
+//        }
+//    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void restrictSpawn() {
+        isActive = true;
     }
 
     public static ArrayList<ClientHandler> getActiveClients() {
@@ -33,10 +57,6 @@ public class Server implements Runnable {
 
     public static String getLogsToString() {
         return logs.toString();
-    }
-
-    public static void setPort(int port) {
-        mPort = port;
     }
 
     public static void acceptClient(String username) throws IOException {
@@ -101,14 +121,14 @@ public class Server implements Runnable {
     @Override
     public void run() {
         try {
-            initialize(mPort);
+            init();
             String username = reader.readUTF();
 
             while (true) {
                 if (mActiveClients.size() < 2) {
                     acceptClient(username);
                 } else {
-                    reconnectOrDenyClient(username);
+//                    reconnectOrDenyClient(username);
                 }
             }
         } catch (Exception e) {

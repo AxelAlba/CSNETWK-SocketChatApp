@@ -69,23 +69,23 @@ public class ChatController implements Initializable {
 
     @FXML
     private void uploadImage() {
-        FileChooser fc = new FileChooser();
-        Stage stage = Main.getPrimaryStage();
-        File file = fc.showOpenDialog(stage);
-        createMessageItem(IMAGE, SEND, String.valueOf(file));
+//        FileChooser fc = new FileChooser();
+//        Stage stage = Main.getPrimaryStage();
+//        File file = fc.showOpenDialog(stage);
+//        createMessageItem(IMAGE, SEND, String.valueOf(file));
     }
 
     @FXML
     private void uploadFile() {
-        FileChooser fc = new FileChooser();
-        Stage stage = Main.getPrimaryStage();
-        File file = fc.showOpenDialog(stage);
-        createMessageItem(FILE, SEND, String.valueOf(file));
+//        FileChooser fc = new FileChooser();
+//        Stage stage = Main.getPrimaryStage();
+//        File file = fc.showOpenDialog(stage);
+//        createMessageItem(FILE, SEND, String.valueOf(file));
     }
 
     @FXML
     private void logout() throws Exception {
-        Main.changeScene("views/login.fxml");
+//        Main.changeScene("views/login.fxml");
     }
 
     private void viewImage(ImageView img) {

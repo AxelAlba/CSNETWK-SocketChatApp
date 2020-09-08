@@ -20,7 +20,7 @@ public class Client {
         mWriter = new DataOutputStream(mClientEndpoint.getOutputStream());
     }
 
-    public void initialize() throws UnknownHostException, IOException {
+    public void initialize() {
         // InetAddress ip = InetAddress.getByName("localhost"); // temporary??
 
         // Establish the connection
@@ -30,7 +30,7 @@ public class Client {
 
             String message = "temporary";
             sendMessage(message).start();
-            readMessage().start();
+//            readMessage().start();
         } catch (Exception e) {
             e.printStackTrace();
         }
