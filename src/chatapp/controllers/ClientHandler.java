@@ -78,13 +78,10 @@ public class ClientHandler implements Runnable {
 
     @Override
     public void run() {
-        String received;
-
         while (true) {
             try {
-                // receive the string from the clients
-                received = reader.readUTF();
-
+                String received = reader.readUTF();
+                System.out.println("Clienthandler: " + received);
                 // break the string into message and recipient part
                 StringTokenizer st = new StringTokenizer(received, ":");
                 String senderName = st.nextToken();
@@ -102,7 +99,7 @@ public class ClientHandler implements Runnable {
                         .orElse(null);
 
                 if (client1 != null) {
-//                    Server.log("Server: " + this.name + " sent \"" + messageToSend + "\" to " + client1.name, Server.getTimeStamp());
+                    Server.log("Server: " + this.name + " sent \"" + messageToSend + "\" to " + client1.name, Server.getTimeStamp());
                     client1.writer.writeUTF(this.name + ": " + messageToSend);
                 }
             } catch (IOException e) {

@@ -1,10 +1,14 @@
 package chatapp.controllers;
 
+
+import chatapp.repositories.ControllerRepo;
+import chatapp.repositories.MessageRepo;
+import javafx.application.Platform;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 public class Client {
     private final String mUsername;
@@ -21,29 +25,33 @@ public class Client {
     }
 
     public void initialize() {
-        // InetAddress ip = InetAddress.getByName("localhost"); // temporary??
-
-        // Establish the connection
         try {
             System.out.println("Successfully connected to server at " + mClientEndpoint.getRemoteSocketAddress());
             mWriter.writeUTF(mUsername);
 
-            String message = "temporary";
-            sendMessage(message).start();
-//            readMessage().start();
+            sendMessage().start();
+            readMessage().start();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private Thread sendMessage(String message) {
+    private Thread sendMessage() {
         return new Thread(() -> {
+            System.out.println("Send thread: Start");
             boolean flag = true;
             while (flag) {
                 // manipulation of flag should not be in the try catch block
                 try {
-                    mWriter.writeUTF(mUsername + ":" + message);
-                } catch (IOException e) {
+                    System.out.println("Hello");
+
+                    if (MessageRepo.getMessageCount() > 0) {
+                        System.out.println(MessageRepo.getMessageCount());
+                        String lastMessage = MessageRepo.getLastMessage();
+                        mWriter.writeUTF(mUsername + ":" + lastMessage);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                     flag = false;
                 }
             }
@@ -52,15 +60,26 @@ public class Client {
 
     private Thread readMessage() {
         return new Thread(() -> {
+            System.out.println("Read thread: Start");
+            ChatController c = ControllerRepo.getController1();
+
             boolean flag = true;
             while (flag) {
                 try {
-                    String msg = mReader.readUTF();
-                    // Code for view
-                } catch (IOException e) {
+                    String message = mReader.readUTF();
+                    if (message.length() > 0) {
+                        System.out.println(message);
+                        MessageRepo.addMessage(message);
+                        Platform.runLater(() -> {
+                            c.receiveMessage(MessageRepo.getLastMessage());
+                        });
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                     flag = false;
                 }
             }
+            System.out.println("Read thread: outside");
         });
     }
 }

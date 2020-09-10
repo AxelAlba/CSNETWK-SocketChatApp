@@ -1,18 +1,15 @@
 package chatapp.controllers;
 
 import chatapp.Main;
+import chatapp.repositories.ControllerRepo;
+import chatapp.repositories.ThreadRepo;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
-import javafx.stage.Stage;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
-public class LoginController implements Initializable {
+public class LoginController {
 
     @FXML
     TextField fIPAddress, fPort, fUsername;
@@ -20,44 +17,28 @@ public class LoginController implements Initializable {
     @FXML
     Button btnLogin;
 
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-        btnLogin.setOnMouseClicked(e -> {
-            if (isValidLogin()) {
-                String username = fUsername.getText();
-                String host = fIPAddress.getText();
-                int port = Integer.parseInt(fPort.getText());
+    @FXML
+    public void login() throws Exception {
+        if (isValidLogin()) {
+            int port = Integer.parseInt(fPort.getText());
+            String username = fUsername.getText();
+            String host = fIPAddress.getText();
 
+            if (ThreadRepo.getAcceptClientThread() == null)
+                ThreadRepo.startAcceptClientThread(port);
 
-//                Server server = Server.getInstance(port);
-//                if (!server.isActive()) {
-//                    Thread serverThread = new Thread(server);
-//                    serverThread.start();
-//                    server.restrictSpawn();
-//                }
+            Client client = new Client(username, host, port);
+            client.initialize();
 
-                new Thread(new Server(port)).start();
-
-                Client client;
-                try {
-                    client = new Client(username, host, port);
-                    client.initialize();
-                } catch (IOException ioException) {
-                    ioException.printStackTrace();
-                }
-
-                try {
-                    System.out.println("login");
-                    Main.changeScene("views/chat.fxml");
-                } catch (Exception exception) {
-                    exception.printStackTrace();
-                }
-            } else {
+            ChatController controller = (ChatController) Main.changeScene("views/chat.fxml");
+            if (ControllerRepo.getController1() == null)
+                ControllerRepo.setController1(controller);
+            else if (ControllerRepo.getController2() == null)
+                ControllerRepo.setController2(controller);
+        } else {
 //            TODO: Add error messages for invalid field/s
-            }
-        });
+        }
     }
-
 
     private boolean isValidIP(String ipString) {
         String regex = "(([0-1]?[0-9]{1,2}\\.)|(2[0-4][0-9]\\.)|(25[0-5]\\.)){3}(([0-1]?[0-9]{1,2})|(2[0-4][0-9])|(25[0-5]))";

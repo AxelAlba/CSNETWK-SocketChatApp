@@ -1,5 +1,8 @@
 package chatapp.controllers;
 
+import chatapp.Constants;
+import chatapp.Main;
+import chatapp.repositories.MessageRepo;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
@@ -9,9 +12,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
-import chatapp.Main;
 
 import java.io.File;
 import java.net.URL;
@@ -19,12 +19,6 @@ import java.util.ResourceBundle;
 
 
 public class ChatController implements Initializable {
-
-    private static final int SEND = 0;
-    private static final int RECEIVE = 1;
-    private static final int IMAGE = 10;
-    private static final int FILE = 11;
-    private static final int TEXT = 12;
 
     @FXML
     Button btnSend;
@@ -45,6 +39,9 @@ public class ChatController implements Initializable {
     Label textDownload;
 
     @FXML
+    Label lblName;
+
+    @FXML
     ImageView imgProfile;
 
     @FXML
@@ -54,16 +51,10 @@ public class ChatController implements Initializable {
     public void sendMessage() {
         String messageText = chatInput.getText();
         if (messageText.length() > 0) {
-            createMessageItem(TEXT, SEND, messageText);
+            createMessageItem(Constants.TEXT, Constants.SEND, messageText);
             chatInput.clear();
-        }
-    }
 
-    @FXML
-    private void receiveMessage() {
-        String messageText = chatInput.getText();
-        if (messageText.length() > 0) {
-            createMessageItem(TEXT, RECEIVE, messageText);
+            MessageRepo.addMessage(messageText);
         }
     }
 
@@ -85,7 +76,14 @@ public class ChatController implements Initializable {
 
     @FXML
     private void logout() throws Exception {
-//        Main.changeScene("views/login.fxml");
+        Main.changeScene("views/login.fxml");
+    }
+
+
+    public void receiveMessage(String message) {
+        if (message.length() > 0) {
+            createMessageItem(Constants.TEXT, Constants.RECEIVE, message);
+        }
     }
 
     private void viewImage(ImageView img) {
@@ -98,22 +96,22 @@ public class ChatController implements Initializable {
         btnDownload.setOnMouseClicked(e -> imageFile.downloadImage());
     }
 
-    private void createMessageItem(int messageType, int action, String data) {
+    public void createMessageItem(int messageType, int action, String data) {
         BorderPane bp = new BorderPane();
         Node message = null;
         bp.getStyleClass().add("message-wrapper");
 
-        if (messageType == IMAGE) {
+        if (messageType == Constants.IMAGE) {
             message = createImageMessageItem(data);
-        } else if (messageType == TEXT) {
+        } else if (messageType == Constants.TEXT) {
             message = createTextMessageItem(data, action);
-        } else if (messageType == FILE) {
+        } else if (messageType == Constants.FILE) {
             message = createFileMessageItem(data, action);
         }
 
-        if (action == SEND) {
+        if (action == Constants.SEND) {
             bp.setRight(message);
-        } else if (action == RECEIVE) {
+        } else if (action == Constants.RECEIVE) {
             bp.setLeft(message);
         }
 
@@ -124,9 +122,10 @@ public class ChatController implements Initializable {
         Label messageText = new Label(text);
         messageText.getStyleClass().add("message-box");
         messageText.setWrapText(true);
-        if (action == SEND) {
+
+        if (action == Constants.SEND) {
             messageText.getStyleClass().add("message-box-self");
-        } else if (action == RECEIVE) {
+        } else if (action == Constants.RECEIVE) {
             messageText.getStyleClass().add("message-box-other");
         }
 
@@ -148,8 +147,14 @@ public class ChatController implements Initializable {
         return createTextMessageItem(filename, action);
     }
 
+    public void showChat(String name) {
+        imageViewer.toBack();
+        lblName.setText(name);
+    }
+
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        ImageObject.setRoundCorners(imgProfile, 50);
+        imageViewer.toFront();
     }
 }

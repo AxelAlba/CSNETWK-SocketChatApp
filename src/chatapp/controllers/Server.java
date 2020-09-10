@@ -1,6 +1,12 @@
 package chatapp.controllers;
 
 
+import chatapp.Main;
+import chatapp.repositories.ControllerRepo;
+import javafx.application.Platform;
+import javafx.fxml.FXMLLoader;
+import javafx.stage.Stage;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -8,13 +14,13 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 
 public class Server implements Runnable {
     private static final ArrayList<ClientHandler> mActiveClients = new ArrayList<>();
     private static final StringBuilder logs = new StringBuilder();
     private static int mPort;
+
     private static Socket serverEndpoint;
     private static DataInputStream reader;
     private static DataOutputStream writer;
@@ -22,26 +28,18 @@ public class Server implements Runnable {
     private static Server mInstance = null;
     private static boolean isActive = false;
 
-    public Server(int port) {
+    // Singleton class to prevent multiple servers
+    private Server(int port) {
         mPort = port;
-        isActive = true;
+        isActive = false;
     }
 
-    private static void init() throws IOException {
-        System.out.println("Instance running");
-        ServerSocket serverSocket = new ServerSocket(mPort);
-        serverEndpoint = serverSocket.accept();
-        reader = new DataInputStream(serverEndpoint.getInputStream());
-        writer = new DataOutputStream(serverEndpoint.getOutputStream());
+    public static Server getInstance(int port) {
+        if (mInstance == null) {
+            mInstance = new Server(port);
+        }
+        return mInstance;
     }
-
-//    public static Server getInstance(int port) {
-//        if (mInstance == null) {
-//            return new Server(port);
-//        } else {
-//            return mInstance;
-//        }
-//    }
 
     public boolean isActive() {
         return isActive;
@@ -60,19 +58,16 @@ public class Server implements Runnable {
     }
 
     public static void acceptClient(String username) throws IOException {
-//        Search client list for duplicates
         ClientHandler duplicate = mActiveClients.stream()
                 .filter(c -> c.name.equals(username))
                 .findAny()
                 .orElse(null);
 
         if (duplicate == null) {
-            System.out.println(Arrays.toString(mActiveClients.toArray()));
-            ClientHandler client = new ClientHandler(serverEndpoint, username, reader, writer);
-
+            ClientHandler clientHandler = new ClientHandler(serverEndpoint, username, reader, writer);
             log("Server: '" + username + "' logged in to the server.", getTimeStamp());
-            mActiveClients.add(client);
-            new Thread(client).start();
+            mActiveClients.add(clientHandler);
+            new Thread(clientHandler).start();
         }
     }
 
@@ -96,9 +91,9 @@ public class Server implements Runnable {
             if (client2.isActive) {
                 client2.writer.writeUTF("(" + client2.name + " has reconnected to the server)");
             }
+            log("Server: '" + username + "' has reconnected to the server. (", getTimeStamp());
         }
 
-        log("Server: '" + username + "' has reconnected to the server. (", getTimeStamp());
 
         if (isPastUser) {
             writer.writeUTF("Sorry " + username + ", the server is currently full...");
@@ -118,23 +113,48 @@ public class Server implements Runnable {
         return mActiveClients.get(index ^ 1);
     }
 
+    private void viewChat(Stage stage, ArrayList<ClientHandler> clients) throws IOException {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(Main.class.getResource("views/chat.fxml"));
+        loader.load();
+
+        ChatController controller;
+        String name = "";
+        if (stage.equals(Main.getSelfStage())) {
+            controller = ControllerRepo.getController1();
+            name = clients.get(1).name;
+        } else {
+            controller = ControllerRepo.getController2();
+            name = clients.get(0).name;
+        }
+
+        String finalName = name;
+        Platform.runLater(() -> controller.showChat(finalName));
+    }
+
     @Override
     public void run() {
+        String username = "";
         try {
-            init();
-            String username = reader.readUTF();
-
-            while (true) {
-                if (mActiveClients.size() < 2) {
-                    acceptClient(username);
-                } else {
-//                    reconnectOrDenyClient(username);
-                }
+            ServerSocket serverSocket = new ServerSocket(mPort);
+            while (mActiveClients.size() < 2) {
+                serverEndpoint = serverSocket.accept();
+                reader = new DataInputStream(serverEndpoint.getInputStream());
+                writer = new DataOutputStream(serverEndpoint.getOutputStream());
+                username = reader.readUTF();
+                acceptClient(username);
             }
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            log("Server: Connection terminated", getTimeStamp());
         }
+
+        try {
+            viewChat(Main.getSelfStage(), mActiveClients);
+            viewChat(Main.getOtherStage(), mActiveClients);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        log("Server: Room is full", getTimeStamp());
     }
 }

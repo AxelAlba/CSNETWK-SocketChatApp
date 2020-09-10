@@ -1,5 +1,6 @@
 package chatapp;
 
+import chatapp.controllers.ChatController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -35,25 +36,40 @@ public class Main extends Application {
         stage.show();
     }
 
-    public static void changeScene(String fxml) throws Exception {
-        Parent root = FXMLLoader.load(Main.class.getResource(fxml));
-        Window focused = Stage.getWindows()
+    public static Object changeScene(String fxml) throws Exception {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(Main.class.getResource(fxml));
+
+        Parent root = loader.load();
+        Stage.getWindows()
                 .stream()
                 .filter(Window::isFocused)
                 .findFirst()
-                .orElse(null);
+                .ifPresent(focused -> focused.getScene().setRoot(root));
 
+        return loader.getController();
+    }
 
-        if (focused != null) {
-            System.out.println(fxml + focused);
-            focused.getScene().setRoot(root);
-        }
+    public static Object getController(String fxml) throws Exception {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(Main.class.getResource(fxml));
+        loader.load();
+        return loader.getController();
     }
 
     // TODO: TEMP!!!
     public static Stage getPrimaryStage() {
         return mOtherStage;
     }
+
+    public static Stage getSelfStage() {
+        return mSelfStage;
+    }
+
+    public static Stage getOtherStage() {
+        return mOtherStage;
+    }
+
 
     public static void main(String[] args) {
         launch(args);

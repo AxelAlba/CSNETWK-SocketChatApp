@@ -23,7 +23,7 @@
                   <TextField fx:id="fPort" promptText="Ex: 8080 or 8000" styleClass="input" text="8000"/>
                </VBox>
                <VBox styleClass="input-group">
-                  <Button fx:id="btnLogin" styleClass="btn" text="Login" />
+                  <Button fx:id="btnLogin" onMouseClicked="#login" styleClass="btn" text="Login" />
                </VBox>
             </VBox>
          </VBox>
