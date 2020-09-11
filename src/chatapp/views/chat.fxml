@@ -15,12 +15,14 @@
          </HBox>
       </top>
    </BorderPane>
+
    <AnchorPane prefHeight="768.0" prefWidth="1024.0" styleClass="root" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
       <AnchorPane prefWidth="1024.0" styleClass="chat-header" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <ImageView fx:id="imgProfile" fitHeight="51.0" fitWidth="52.0" layoutX="25.0" layoutY="8.0" preserveRatio="true" AnchorPane.bottomAnchor="8.0" AnchorPane.leftAnchor="32.0" AnchorPane.topAnchor="8.0">
             <Image url="@../assets/girl.PNG" />
          </ImageView>
          <Label fx:id="lblName" layoutX="92.0" layoutY="25.0" styleClass="label, bold-text" AnchorPane.bottomAnchor="8.0" AnchorPane.topAnchor="8.0" />
+         <Label fx:id="lblStatus" />
          <Button fx:id="btnLogout" layoutX="937.0" layoutY="21.0" onMouseClicked="#logout" styleClass="btn, btn-link" text="Log Out" AnchorPane.bottomAnchor="8.0" AnchorPane.rightAnchor="28.0" AnchorPane.topAnchor="8.0" />
       </AnchorPane>
 
@@ -38,4 +40,9 @@
       <Button fx:id="btnSend" layoutX="657.0" layoutY="161.0" onMouseClicked="#sendMessage" styleClass="btn" text="Send" AnchorPane.bottomAnchor="32.0" AnchorPane.rightAnchor="32.0" AnchorPane.topAnchor="32.0" />
    </AnchorPane>
    </AnchorPane>
+   <BorderPane fx:id="matchingScreen" prefHeight="768.0" prefWidth="1024.0" styleClass="root" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+      <center>
+         <Label layoutX="446.0" layoutY="376.0" styleClass="header, bold-text" text="Matching..." />
+      </center>
+   </BorderPane>
 </StackPane>

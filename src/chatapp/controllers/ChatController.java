@@ -2,7 +2,7 @@ package chatapp.controllers;
 
 import chatapp.Constants;
 import chatapp.Main;
-import chatapp.repositories.MessageRepo;
+import chatapp.repositories.Messages;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
@@ -12,6 +12,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
 import java.io.File;
 import java.net.URL;
@@ -21,7 +23,7 @@ import java.util.ResourceBundle;
 public class ChatController implements Initializable {
 
     @FXML
-    Button btnSend;
+    Button btnSend, btnLogout;
 
     @FXML
     TextField chatInput;
@@ -30,48 +32,41 @@ public class ChatController implements Initializable {
     VBox chatContainer;
 
     @FXML
-    Button btnLogout;
-
-    @FXML
-    ImageView btnDownload;
-
-    @FXML
     Label textDownload;
 
     @FXML
-    Label lblName;
+    Label lblName, lblStatus;
 
     @FXML
-    ImageView imgProfile;
+    ImageView imgProfile, btnDownload;
 
     @FXML
-    BorderPane imageViewer;
+    BorderPane imageViewer, matchingScreen;
 
     @FXML
     public void sendMessage() {
         String messageText = chatInput.getText();
         if (messageText.length() > 0) {
             createMessageItem(Constants.TEXT, Constants.SEND, messageText);
+            Messages.addMessage(messageText);
             chatInput.clear();
-
-            MessageRepo.addMessage(messageText);
         }
     }
 
     @FXML
     private void uploadImage() {
-//        FileChooser fc = new FileChooser();
-//        Stage stage = Main.getPrimaryStage();
-//        File file = fc.showOpenDialog(stage);
-//        createMessageItem(IMAGE, SEND, String.valueOf(file));
+        FileChooser fc = new FileChooser();
+        Stage stage = Main.getPrimaryStage();
+        File file = fc.showOpenDialog(stage);
+        createMessageItem(Constants.IMAGE, Constants.SEND, String.valueOf(file));
     }
 
     @FXML
     private void uploadFile() {
-//        FileChooser fc = new FileChooser();
-//        Stage stage = Main.getPrimaryStage();
-//        File file = fc.showOpenDialog(stage);
-//        createMessageItem(FILE, SEND, String.valueOf(file));
+        FileChooser fc = new FileChooser();
+        Stage stage = Main.getPrimaryStage();
+        File file = fc.showOpenDialog(stage);
+        createMessageItem(Constants.FILE, Constants.SEND, String.valueOf(file));
     }
 
     @FXML
@@ -148,13 +143,15 @@ public class ChatController implements Initializable {
     }
 
     public void showChat(String name) {
-        imageViewer.toBack();
+        matchingScreen.toBack();
         lblName.setText(name);
     }
 
+    public void onDisconnect() {
+        lblStatus.setText("Disconnected");
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        imageViewer.toFront();
     }
 }

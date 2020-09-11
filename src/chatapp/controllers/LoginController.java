@@ -1,12 +1,12 @@
 package chatapp.controllers;
 
+import chatapp.Constants;
 import chatapp.Main;
-import chatapp.repositories.ControllerRepo;
-import chatapp.repositories.ThreadRepo;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 
+import java.net.ConnectException;
 import java.util.regex.Pattern;
 
 public class LoginController {
@@ -19,24 +19,26 @@ public class LoginController {
 
     @FXML
     public void login() throws Exception {
+        boolean portOpen = true;
+
         if (isValidLogin()) {
             int port = Integer.parseInt(fPort.getText());
             String username = fUsername.getText();
             String host = fIPAddress.getText();
 
-            if (ThreadRepo.getAcceptClientThread() == null)
-                ThreadRepo.startAcceptClientThread(port);
+            try {
+                ChatController c = (ChatController) Main.changeScene("views/chat.fxml");
+                ControllerRepo.setChatController(c);
 
-            Client client = new Client(username, host, port);
-            client.initialize();
-
-            ChatController controller = (ChatController) Main.changeScene("views/chat.fxml");
-            if (ControllerRepo.getController1() == null)
-                ControllerRepo.setController1(controller);
-            else if (ControllerRepo.getController2() == null)
-                ControllerRepo.setController2(controller);
+                Client client = new Client(username, host, port);
+                client.initialize();
+            } catch (ConnectException e) {
+                System.out.println("Connection refused: Server not started.");
+                portOpen = false;
+                // TODO: Error message for bad ip or closed port
+            }
         } else {
-//            TODO: Add error messages for invalid field/s
+//            TODO: Error messages for malformed inputs
         }
     }
 
@@ -51,10 +53,6 @@ public class LoginController {
     }
 
     private boolean isValidLogin() {
-        if (fIPAddress.getText().equals("") || fPort.getText().equals("")) {
-            return false;
-        }
-
         String ip = fIPAddress.getText();
         int port = Integer.parseInt(fPort.getText());
 
