@@ -1,7 +1,7 @@
 package chatapp.controllers;
 
-import chatapp.Constants;
 import chatapp.Main;
+import chatapp.repositories.ControllerInstance;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
@@ -28,7 +28,7 @@ public class LoginController {
 
             try {
                 ChatController c = (ChatController) Main.changeScene("views/chat.fxml");
-                ControllerRepo.setChatController(c);
+                ControllerInstance.setChatController(c);
 
                 Client client = new Client(username, host, port);
                 client.initialize();

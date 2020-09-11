@@ -1,7 +1,8 @@
 package chatapp.controllers;
 
 
-import chatapp.repositories.Messages;
+import chatapp.repositories.ControllerInstance;
+import chatapp.repositories.MessageRepository;
 import javafx.application.Platform;
 
 import java.io.DataInputStream;
@@ -39,24 +40,21 @@ public class Client {
 
     private Thread sendMessage() {
         System.out.println("Send thread: start");
-        Messages.initialize();
+        MessageRepository.initialize();
         return new Thread(() -> {
-            boolean flag = true;
-            while (flag) {
-                // manipulation of flag should not be in the try catch block
-                // listen for new messages
-                if (Messages.isChanged()) {
-                    System.out.println("messages changed");
-
-                    String message = Messages.getLastMessage();
-                    System.out.println(message);
-                    try {
-                        mWriter.writeUTF(mUsername + ":" + message);
-                        Messages.setIsChanged(false);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        flag = false;
+            while (!MessageRepository.getLastMessage().equals("-logout")) {
+                synchronized (this) {
+                    while (!MessageRepository.isChanged()) {
                     }
+                    if (MessageRepository.getMessageCount() > 0) {
+                        String message = MessageRepository.getLastMessage();
+                        try {
+                            mWriter.writeUTF(mUsername + ":" + message);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    MessageRepository.setNoChange();
                 }
             }
         });
@@ -65,22 +63,18 @@ public class Client {
     private Thread readMessage() {
         System.out.println("Read thread: start");
         return new Thread(() -> {
-            boolean flag = true;
-            while (flag) {
+            while (!MessageRepository.getLastMessage().equals("-logout")) {
                 try {
                     String message = mReader.readUTF();
-                    System.out.println(message);
+                    MessageRepository.addMessage(message);
 
-                    Messages.addMessage(message);
+                    if (MessageRepository.isChanged()) {
+                        Platform.runLater(() -> ControllerInstance.getChatController().receiveMessage(message));
+                    }
 
-                    if (Messages.isChanged())
-                        Platform.runLater(() -> {
-                            ChatController controller = ControllerRepo.getChatController();
-                            controller.receiveMessage(message);
-                        });
+                    MessageRepository.setNoChange();
                 } catch (Exception e) {
                     e.printStackTrace();
-                    flag = false;
                 }
             }
         });
@@ -105,12 +99,11 @@ public class Client {
                     clients.get(0);
 
             Platform.runLater(() -> {
-                ChatController controller = ControllerRepo.getChatController();
+                ChatController controller = ControllerInstance.getChatController();
                 controller.showChat(otherClient);
+                sendMessage().start();
+                readMessage().start();
             });
-
-            sendMessage().start();
-            readMessage().start();
         });
     }
 }

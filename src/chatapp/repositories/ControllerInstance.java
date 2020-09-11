@@ -1,6 +1,8 @@
-package chatapp.controllers;
+package chatapp.repositories;
 
-public class ControllerRepo {
+import chatapp.controllers.ChatController;
+
+public class ControllerInstance {
     private static ChatController chatController;
 
     public static void setChatController(ChatController c) {

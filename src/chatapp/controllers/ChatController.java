@@ -2,7 +2,7 @@ package chatapp.controllers;
 
 import chatapp.Constants;
 import chatapp.Main;
-import chatapp.repositories.Messages;
+import chatapp.repositories.MessageRepository;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
@@ -48,7 +48,7 @@ public class ChatController implements Initializable {
         String messageText = chatInput.getText();
         if (messageText.length() > 0) {
             createMessageItem(Constants.TEXT, Constants.SEND, messageText);
-            Messages.addMessage(messageText);
+            MessageRepository.addMessage(messageText);
             chatInput.clear();
         }
     }
@@ -71,6 +71,7 @@ public class ChatController implements Initializable {
 
     @FXML
     private void logout() throws Exception {
+        MessageRepository.addMessage("-logout");
         Main.changeScene("views/login.fxml");
     }
 
