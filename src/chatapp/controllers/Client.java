@@ -39,40 +39,29 @@ public class Client {
 
 
     private Thread sendMessage() {
-        System.out.println("Send thread: start");
         MessageRepository.initialize();
         return new Thread(() -> {
             while (!MessageRepository.getLastMessage().equals("-logout")) {
-                synchronized (this) {
-                    while (!MessageRepository.isChanged()) {
-                    }
-                    if (MessageRepository.getMessageCount() > 0) {
+                while (!MessageRepository.isChanged()) {}
+                if (MessageRepository.getMessageCount() > 0) {
+                    try {
                         String message = MessageRepository.getLastMessage();
-                        try {
-                            mWriter.writeUTF(mUsername + ":" + message);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                        mWriter.writeUTF(mUsername + ":" + message);
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-                    MessageRepository.setNoChange();
                 }
+                MessageRepository.setNoChange();
             }
         });
     }
 
     private Thread readMessage() {
-        System.out.println("Read thread: start");
         return new Thread(() -> {
             while (!MessageRepository.getLastMessage().equals("-logout")) {
                 try {
                     String message = mReader.readUTF();
-                    MessageRepository.addMessage(message);
-
-                    if (MessageRepository.isChanged()) {
-                        Platform.runLater(() -> ControllerInstance.getChatController().receiveMessage(message));
-                    }
-
-                    MessageRepository.setNoChange();
+                    Platform.runLater(() -> ControllerInstance.getChatController().receiveMessage(message));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -82,7 +71,6 @@ public class Client {
 
     private Thread waitThread() {
         return new Thread(() -> {
-            System.out.println("Wait: start");
             List<String> clients = new ArrayList<>();
             while (clients.size() < 2) {
                 try {
@@ -101,9 +89,9 @@ public class Client {
             Platform.runLater(() -> {
                 ChatController controller = ControllerInstance.getChatController();
                 controller.showChat(otherClient);
-                sendMessage().start();
-                readMessage().start();
             });
+            sendMessage().start();
+            readMessage().start();
         });
     }
 }
