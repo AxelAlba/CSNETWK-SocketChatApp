@@ -75,6 +75,13 @@ public class ImageObject {
         mImageView.setClip(clip);
     }
 
+    public static void setRoundCorners(ImageView img, int value) {
+        Rectangle clip = new Rectangle(img.getImage().getWidth(), img.getImage().getHeight());
+        clip.setArcHeight(value);
+        clip.setArcWidth(value);
+        img.setClip(clip);
+    }
+
     private void setImageDimensions(Image image, double factor) {
         if (image.getHeight() > image.getWidth()) {
             mHeight = image.getHeight() * factor / image.getWidth();

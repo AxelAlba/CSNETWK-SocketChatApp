@@ -47,8 +47,16 @@ TextInput {
     -fx-padding: 8 0;
 }
 
+.error {
+    -fx-text-fill: #D51D0C;
+}
+
 .bold-text {
     -fx-font-weight: bold;
+}
+
+.italic {
+    -fx-font-style: italic;
 }
 
 .header {

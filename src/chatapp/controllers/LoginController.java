@@ -4,7 +4,9 @@ import chatapp.Main;
 import chatapp.repositories.ControllerInstance;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
 
 import java.net.ConnectException;
 import java.util.regex.Pattern;
@@ -18,28 +20,55 @@ public class LoginController {
     Button btnLogin;
 
     @FXML
+    HBox hbUsername, hbIP, hbPort;
+
+    @FXML
     public void login() throws Exception {
-        boolean portOpen = true;
+        boolean isPortOpen = true;
+        String username = fUsername.getText();
+        String ip = fIPAddress.getText();
+        String port = fPort.getText();
 
         if (isValidLogin()) {
-            int port = Integer.parseInt(fPort.getText());
-            String username = fUsername.getText();
-            String host = fIPAddress.getText();
+            int portNum = Integer.parseInt(port);
 
             try {
-                ChatController c = (ChatController) Main.changeScene("views/chat.fxml");
-                ControllerInstance.setChatController(c);
-
-                Client client = new Client(username, host, port);
+                Client client = new Client(username, ip, portNum);
                 client.initialize();
             } catch (ConnectException e) {
                 System.out.println("Connection refused: Server not started.");
-                portOpen = false;
-                // TODO: Error message for bad ip or closed port
+                isPortOpen = false;
+                createErrorMessage(hbIP, "  Please check your IP");
+                createErrorMessage(hbPort,"  Please check if your port is open.");
+            }
+
+            if (isPortOpen) {
+                ChatController c = (ChatController) Main.changeScene("views/chat.fxml");
+                ControllerInstance.setChatController(c);
             }
         } else {
-//            TODO: Error messages for malformed inputs
+            if (!isValidUsername(username)) {
+                createErrorMessage(hbUsername, "  Please enter a username.");
+            }
+
+            if (!isValidIP(ip)) {
+                createErrorMessage(hbIP, "  Please enter a valid IP Address.");
+            }
+
+            if (!isValidPort(port)) {
+                createErrorMessage(hbPort, "  Please enter a valid port number.");
+            }
         }
+    }
+
+    private void createErrorMessage(HBox parent, String message) {
+        Label err = new Label(message);
+        err.getStyleClass().addAll("error", "label", "italic");
+        parent.getChildren().add(err);
+    }
+
+    private boolean isValidUsername(String name) {
+        return name.length() > 0;
     }
 
     private boolean isValidIP(String ipString) {
@@ -48,16 +77,23 @@ public class LoginController {
         return pattern.matcher(ipString).matches() || ipString.equalsIgnoreCase("localhost");
     }
 
-    private boolean isValidPort(int port) {
+    private boolean isValidPort(String portString) {
+        if (portString.length() == 0)
+            return false;
+
+        int port = Integer.parseInt(portString);
         return port >= 0 && port <= 65535;
     }
 
     private boolean isValidLogin() {
+        if (fIPAddress.getText().equals("") || fPort.getText().equals("")) {
+            return false;
+        }
+
+        String username = fUsername.getText();
         String ip = fIPAddress.getText();
-        int port = Integer.parseInt(fPort.getText());
+        String port = fPort.getText();
 
-        return isValidIP(ip) && isValidPort(port);
+        return isValidUsername(username) && isValidIP(ip) && isValidPort(port);
     }
-
-
 }

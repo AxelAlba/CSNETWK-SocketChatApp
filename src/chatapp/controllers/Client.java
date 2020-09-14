@@ -7,6 +7,7 @@ import javafx.application.Platform;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -62,6 +63,8 @@ public class Client {
                 try {
                     String message = mReader.readUTF();
                     Platform.runLater(() -> ControllerInstance.getChatController().receiveMessage(message));
+                } catch (EOFException eof) {
+                    break;
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
