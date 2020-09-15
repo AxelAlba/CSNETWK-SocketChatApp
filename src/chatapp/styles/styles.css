@@ -84,8 +84,14 @@ TextInput {
     -fx-border-color: none;
 }
 
+.status {
+    -fx-font-weight: light;
+    -fx-font-size: 14;
+}
+
 .disconnected {
     -fx-font-style: italic;
+    -fx-text-fill: #979797;
 }
 
 .message-box {
