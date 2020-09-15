@@ -27,9 +27,6 @@ public class ChatController implements Initializable {
     private static final int TEXT = 12;
 
     @FXML
-    Button btnSend;
-
-    @FXML
     TextField chatInput;
 
     @FXML

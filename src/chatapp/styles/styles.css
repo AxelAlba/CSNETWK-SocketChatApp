@@ -66,8 +66,13 @@ TextInput {
     -fx-min-width: 368;
     -fx-padding: 8;
     -fx-font-size: 16;
+    -fx-background-color: -fx-control-inner-background;
 }
 
+.input-section {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 16;
+}
 
 .cursor-hand {
     -fx-cursor: hand;
