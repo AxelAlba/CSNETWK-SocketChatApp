@@ -1,14 +1,14 @@
-import java.io.*; 
-import java.net.*; 
-import java.util.Scanner; 
+import java.io.*;
+import java.net.*;
+import java.util.Scanner;
+import java.util.StringTokenizer;
   
 public class MPClient  { 
     final static int ServerPort = 1234; // temporary, user should be asked.
   
     public static void main(String args[]) throws UnknownHostException, IOException { 
+
         Scanner scanner = new Scanner(System.in); 
-        // getting localhost ip 
-        //InetAddress ip = InetAddress.getByName("localhost"); // temporary??
           
         // establish the connection 
         try{
@@ -33,18 +33,45 @@ public class MPClient  {
                 @Override
                 public void run() { 
                     boolean flag = true;
-                        while (flag) { 
-                        // manipulation of flag should not be in the try catch block
-                        // read the message to deliver. 
+                        while (flag) {         
+                        // read the message to deliver to the server. 
                         String msg = scanner.nextLine(); 
                         
-                        try { 
-                            // write on the output stream 
-                            // username of this client should be included on the message sent so the server could parse....
-                            dosWriter.writeUTF(username+":"+msg); 
-                        } catch (IOException e) { 
-                            flag = false;
-                            System.out.println("(disconnected - send message)");
+                        // NOTE: assume that the path name does not have spaces..
+                        StringTokenizer st = new StringTokenizer(msg, " "); 
+                        String command = st.nextToken();
+                        
+                        //FOR FILE SENDING
+                        if (command.equals("-sendFile")){
+                            String path = st.nextToken();
+                            try {
+                                FileInputStream fileInput = new FileInputStream(path);
+                                int bytes = (int)fileInput.getChannel().size();
+
+                                // message format: username:-sendFile:"# Of Bytes":"File Extension" 
+                                dosWriter.writeUTF(username + ":" + "-sendFile:" + bytes + ":" + path.substring(path.lastIndexOf('.') + 1)); 
+
+                                // sending of bytes to server
+                                byte[] b = new byte[bytes];
+                                fileInput.read(b, 0, b.length);
+                                dosWriter.write(b, 0, b.length);                                
+                                fileInput.close();
+
+                            } catch(Exception e) {
+                                e.printStackTrace();
+                            }
+                            
+                        }
+
+                        // FOR MESSAGE SENDING
+                        else{
+                            try { 
+                                // write on the output stream 
+                                dosWriter.writeUTF(username+":"+msg); 
+                            } catch (IOException e) { 
+                                flag = false;
+                                System.out.println("(disconnected - send message)");
+                            }
                         }
                     } 
                 } 
@@ -57,7 +84,8 @@ public class MPClient  {
                     boolean flag = true;
                     while (flag) { 
                         try { 
-                            // read the message sent to this client 
+
+                            // read the message sent to this client by the server
                             String msg = disReader.readUTF(); 
                             System.out.println(msg); 
                         } catch (IOException e) { 
