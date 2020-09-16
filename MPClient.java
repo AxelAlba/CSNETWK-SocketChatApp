@@ -87,7 +87,63 @@ public class MPClient  {
 
                             // read the message sent to this client by the server
                             String msg = disReader.readUTF(); 
-                            System.out.println(msg); 
+                            StringTokenizer st = new StringTokenizer(msg, ":");
+                            String username = st.nextToken();
+                            String command = st.nextToken(); //PROBLEM EXIST HERE
+
+                            // FOR FILE RECEIVING
+                            if (command.equals("-sendFile")){
+                                //get the bytes from the server
+                                int bytes = Integer.parseInt(st.nextToken());
+                                String extension = st.nextToken();
+                                byte[] b = new byte[bytes];
+
+                                System.out.println("(Server: '"+username+"' is sending you a "+extension+" file)"); 
+                                //String fileName = scanner.nextLine(); //can't handle two reads (thread issue)
+
+                                // creation of file
+                                FileOutputStream fr = new FileOutputStream("received"+"."+extension);
+
+                                // copy bytes to file
+                                disReader.read(b, 0, b.length);
+                                fr.write(b, 0, b.length);
+                                fr.close();
+
+                                System.out.println("(Server: "+"received"+"."+extension+" downloaded)");           
+                            }
+
+                            // FOR DISCONNECTION
+                            else if (command.equals("-disconnect")){
+                                System.out.println("("+username+" has disconnected from the server)");
+                            }
+
+                            // FOR OTHER USER RECONNECTION
+                            else if (command.equals("-reconnect")){
+                                System.out.println("("+username+" has reconnected to the server)");  
+                            }
+
+                            // FOR OWN RECONNECTION
+                            else if (command.equals("-ownReconnect")){
+                                System.out.println("(Hello "+username+", you have reconnected to the server)");  
+                            }
+
+                            // FOR MESSAGE SEND FAILED
+                            else if (command.equals("-messageFailed")){
+                                System.out.println("(Your message to "+username+" has failed to send)");  
+                            }
+
+                            // FOR FILE SEND FAILED
+                            else if (command.equals("-fileFailed")){
+                                System.out.println("(Your "+st.nextToken()+" file to "+username+" has failed to send)");  
+                            }    
+                            
+                            // FOR "FULL CLIENTS" NOTIFICATION
+                            else if (command.equals("-full")){
+                                System.out.println("(Sorry "+username+", the server is already full...)");  
+                            }    
+
+                            // FOR MESSAGE RECEIVING
+                            else System.out.println(msg); 
                         } catch (IOException e) { 
                             flag = false; 
                             System.out.println("(disconnected - read message)");

@@ -72,14 +72,14 @@ public class MPServer {
                             t = new Thread(client);
                             t.start();
                             isPastUser = true;
-                            client.dosWriter.writeUTF("(Hello "+username+", you have reconnected to the server)");
+                            client.dosWriter.writeUTF(client.name+":"+"-ownReconnect");
                             
                             //notify the other client
                             for (ClientHandler client2 : MPServer.activeClients)  
                             { 
                                 if (!(client2.name.equals(username))) { 
                                     if(client2.isActive == true){
-                                        client2.dosWriter.writeUTF("("+client.name+" has reconnected to the server)"); 
+                                        client2.dosWriter.writeUTF(client.name+":"+"-reconnect"); 
                                         break;
                                     }
                                 } 
@@ -93,7 +93,7 @@ public class MPServer {
 
                     // for excess clients (more than 2)
                     if(isPastUser == false) {
-                        dosWriter.writeUTF("Sorry "+username+", the server is currently full...");
+                        dosWriter.writeUTF(username+":-full");
                     }
                     
                 }
@@ -163,8 +163,8 @@ class ClientHandler implements Runnable
                     // for notifying the other client for the logout
                     for (ClientHandler client : MPServer.activeClients)  { 
                         if (!(client.name.equals(sender))) { 
-                            if(client.isActive == true){
-                                client.dosWriter.writeUTF("("+this.name+" has disconnected from the server)"); 
+                            if(client.isActive == true){ 
+                                client.dosWriter.writeUTF(this.name+":"+"-disconnect"); 
                                 break;
                             }
 
@@ -213,40 +213,39 @@ class ClientHandler implements Runnable
 
                             // send file succeed
                             if(client.isActive == true){
-                                client.dosWriter.writeUTF(this.name +": "+ MsgToSend); 
-
                                 // Get the rest of the message here (tokens) and send to other client
                                 // format message:
                                 int bytes = Integer.parseInt(st.nextToken());
                                 String extension = st.nextToken();
-                                    // NOT YET DONE: Send the trigger message to client
-                                
+
+                                //Sending the trigger message to the client 
+                                client.dosWriter.writeUTF(this.name +":-sendFile:"+bytes+":"+extension);
+
                                 // Get the bytes and send to other client
                                 byte[] b = new byte[bytes];
-                                    // NOT YET DONE: Send the bytes of the file after the message
+                                disReader.read(b, 0, b.length);
+                                client.dosWriter.write(b, 0, b.length);
 
                                 // change after implementation
                                 timeStamp = new SimpleDateFormat("yyyy.MM.dd HH.mm.ss").format(new Date());
-                                System.out.println("Server: "+this.name+" sent \""+MsgToSend+"\" to " + client.name + " ("+timeStamp+")");
-                                MPServer.logs += "Server: "+this.name+" sent \""+MsgToSend+"\" to " + client.name + " ("+timeStamp+")\n";
+                                System.out.println("Server: "+ this.name +" sent a "+ extension +" file to " + client.name + " ("+timeStamp+")");
+                                MPServer.logs += "Server: "+ this.name +" sent a "+ extension +" file to " + client.name + " ("+timeStamp+")\n";
                                 break;
                             }
 
                             // send file failed
                             else {
-                                this.dosWriter.writeUTF("(Your file to "+client.name+" has failed to send)");
+                                int bytes = Integer.parseInt(st.nextToken());
+                                String extension = st.nextToken();
+                                                     
+                                // BUG SOLUTION: Get the bytes and store it here so that everything stays in the server.
+                                byte[] b = new byte[bytes];
+                                disReader.read(b, 0, b.length);
 
-
-                                // Get the rest of the message here (tokens)
-
-
-                                // Get the bytes and send to other client
-
-
-                                // change after implementation
+                                this.dosWriter.writeUTF(client.name+":-fileFailed:"+extension);
                                 timeStamp = new SimpleDateFormat("yyyy.MM.dd HH.mm.ss").format(new Date());
-                                System.out.println("Server: "+ this.name +" failed to send \""+MsgToSend+"\" to " + client.name + " ("+timeStamp+")");
-                                MPServer.logs += "Server: "+ this.name +" failed to send \""+MsgToSend+"\" to " + client.name + " ("+timeStamp+")\n";
+                                System.out.println("Server: "+ this.name +" failed to send a "+ extension +" file to " + client.name + " ("+timeStamp+")");
+                                MPServer.logs += "Server: "+ this.name +" failed to send a "+ extension +" file to " + client.name + " ("+timeStamp+")\n";
                                 break;
                             }
                         } 
@@ -271,7 +270,7 @@ class ClientHandler implements Runnable
 
                             // send message failed
                             else {
-                                this.dosWriter.writeUTF("(Your message to "+client.name+" has failed to send)");
+                                this.dosWriter.writeUTF(client.name+":-messageFailed");
 
                                 timeStamp = new SimpleDateFormat("yyyy.MM.dd HH.mm.ss").format(new Date());
                                 System.out.println("Server: "+ this.name +" failed to send \""+MsgToSend+"\" to " + client.name + " ("+timeStamp+")");
