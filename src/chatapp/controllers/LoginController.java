@@ -25,6 +25,7 @@ public class LoginController {
     @FXML
     public void login() throws Exception {
         boolean isPortOpen = true;
+
         String username = fUsername.getText();
         String ip = fIPAddress.getText();
         String port = fPort.getText();
