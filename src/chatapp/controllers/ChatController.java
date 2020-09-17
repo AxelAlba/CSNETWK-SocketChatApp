@@ -2,14 +2,17 @@ package chatapp.controllers;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.OverrunStyle;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -147,13 +150,29 @@ public class ChatController implements Initializable {
         String filename = file.getName();
 
         HBox container = new HBox();
-        Label messageItem = (Label) createTextMessageItem(filename, action);
-        ImageView icon = new ImageView(new Image(String.valueOf(getClass().getResource("../assets/download_alt.png"))));
+        Label fileMessage = new Label(filename);
+        Label space = new Label("   ");
 
-        messageItem.setUnderline(true);
+        String mPath = (String.valueOf(getClass().getResource("../assets/download_alt.png")));
+        ImageObject iconObj = new ImageObject(mPath, 20.0, 20.0);
+        ImageView icon = iconObj.getImageView();
+
+        icon.getStyleClass().add("icon");
+
+        fileMessage.setUnderline(true);
+        fileMessage.getStyleClass().add("text-white");
+        fileMessage.setTextOverrun(OverrunStyle.ELLIPSIS);
+
+        container.setAlignment(Pos.CENTER);
         container.getChildren().add(icon);
-        container.getChildren().add(messageItem);
-        container.getStyleClass().add("message-box");
+        container.getChildren().add(space);
+        container.getChildren().add(fileMessage);
+
+        if (action == SEND)
+            container.getStyleClass().addAll( "file-message-box", "message-box-self", "cursor-hand");
+        else if (action == RECEIVE)
+            container.getStyleClass().addAll( "file-message-box", "message-box-other", "cursor-hand");
+
         container.setOnMouseClicked(e -> downloadFile());
 
         return container;

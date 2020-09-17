@@ -16,7 +16,7 @@ import java.io.IOException;
 
 public class ImageObject {
     private double mHeight, mWidth;
-    private final ImageView mImageView;
+    private ImageView mImageView = null;
 
     public ImageObject(String imagePath, double factor, boolean roundCorners) {
         Image image = new Image("file:///" + imagePath);
@@ -37,6 +37,17 @@ public class ImageObject {
 
     public ImageObject(ImageView imageView) {
         mImageView = imageView;
+    }
+
+    public ImageObject(String path, double height, double width) {
+        mHeight = height;
+        mWidth = width;
+
+        Image image = new Image(path);
+        mImageView = new ImageView(image);
+
+        mImageView.setFitHeight(height);
+        mImageView.setFitWidth(width);
     }
 
     public ImageView getImageView() {
