@@ -6,8 +6,10 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -121,6 +123,7 @@ public class ChatController implements Initializable {
         Label messageText = new Label(text);
         messageText.getStyleClass().add("message-box");
         messageText.setWrapText(true);
+
         if (action == SEND) {
             messageText.getStyleClass().add("message-box-self");
         } else if (action == RECEIVE) {
@@ -142,7 +145,29 @@ public class ChatController implements Initializable {
     private Node createFileMessageItem(String path, int action) {
         File file = new File(path);
         String filename = file.getName();
-        return createTextMessageItem(filename, action);
+
+        HBox container = new HBox();
+        Label messageItem = (Label) createTextMessageItem(filename, action);
+        ImageView icon = new ImageView(new Image(String.valueOf(getClass().getResource("../assets/download_alt.png"))));
+
+        messageItem.setUnderline(true);
+        container.getChildren().add(icon);
+        container.getChildren().add(messageItem);
+        container.getStyleClass().add("message-box");
+        container.setOnMouseClicked(e -> downloadFile());
+
+        return container;
+    }
+
+    private void downloadFile() {
+        FileChooser fc = new FileChooser();
+        fc.setTitle("Download File");
+        fc.getExtensionFilters().addAll(
+            new FileChooser.ExtensionFilter("All Files", "*.docx", "*.pdf", "*.txt")
+        );
+
+        File savedFile = fc.showSaveDialog(Main.getPrimaryStage());
+        String path = savedFile.getPath();
     }
 
     @Override
