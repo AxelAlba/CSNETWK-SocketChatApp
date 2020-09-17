@@ -1,6 +1,7 @@
 package chatapp.controllers;
 
 
+import chatapp.repositories.ClientRepository;
 import chatapp.repositories.ControllerInstance;
 import chatapp.repositories.MessageRepository;
 import javafx.application.Platform;
@@ -22,12 +23,14 @@ public class Client {
 
     private String otherClient;
 
+
     public Client(String username, String host, int serverPort) throws IOException {
         mUsername = username;
         mClientEndpoint = new Socket(host, serverPort);
         mReader = new DataInputStream(mClientEndpoint.getInputStream());
         mWriter = new DataOutputStream(mClientEndpoint.getOutputStream());
     }
+
 
     public void initialize() {
         try {
@@ -39,12 +42,14 @@ public class Client {
         }
     }
 
+    public String getUsername() { return mUsername; }
+
 
     private Thread sendMessage() {
         MessageRepository.initialize();
         return new Thread(() -> {
             while (!MessageRepository.getLastMessage().equals("-logout")) {
-                while (!MessageRepository.isChanged()) {}
+                while (!MessageRepository.isChanged());
                 if (MessageRepository.getMessageCount() > 0) {
                     try {
                         String message = MessageRepository.getLastMessage();
@@ -63,7 +68,17 @@ public class Client {
             while (!MessageRepository.getLastMessage().equals("-logout")) {
                 try {
                     String message = mReader.readUTF();
-                    Platform.runLater(() -> ControllerInstance.getChatController().receiveMessage(message));
+
+                    if (message.equals(otherClient + ":-disconnect")) {
+                        Platform.runLater(() ->
+                                ControllerInstance.getChatController().onPartnerDisconnect());
+                    } else if (message.equals(otherClient + ":-reconnect")) {
+                        Platform.runLater(() ->
+                                ControllerInstance.getChatController().onPartnerReconnect());
+                    } else {
+                        Platform.runLater(() ->
+                                ControllerInstance.getChatController().receiveMessage(message));
+                    }
                 } catch (EOFException eof) {
                     break;
                 } catch (Exception e) {
@@ -75,35 +90,27 @@ public class Client {
 
     private Thread waitThread() {
         return new Thread(() -> {
-            List<String> clients = new ArrayList<>();
-            while (clients.size() < 2) {
+            List<String> clientList = new ArrayList<>();
+
+            while (clientList.size() < 2) {
                 try {
                     String client = mReader.readUTF();
-                    clients.add(client);
+                    clientList.add(client);
                 } catch (IOException e) {
                     e.printStackTrace();
                     break;
                 }
             }
 
-            otherClient = (clients.get(0).equals(mUsername)) ?
-                    clients.get(1) :
-                    clients.get(0);
+            ClientRepository.initialize(clientList);
+            otherClient = (ClientRepository.getClientList().get(0).equals(mUsername)) ?
+                    ClientRepository.getClientList().get(1) :
+                    ClientRepository.getClientList().get(0);
 
             Platform.runLater(() -> {
-                FXMLLoader loader = new FXMLLoader();
-                loader.setLocation(getClass().getResource("../views/chat.fxml"));
-
-                try {
-                    loader.load();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                ChatController controller = loader.getController();
-
-//                ChatController controller = ControllerInstance.getChatController();
+                ChatController controller = ControllerInstance.getChatController();
                 controller.showChat(otherClient);
+
             });
             sendMessage().start();
             readMessage().start();

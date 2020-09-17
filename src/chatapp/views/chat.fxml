@@ -29,8 +29,8 @@
          <ImageView fx:id="imgProfile" fitHeight="51.0" fitWidth="52.0" layoutX="25.0" layoutY="8.0" preserveRatio="true" AnchorPane.bottomAnchor="8.0" AnchorPane.leftAnchor="32.0" AnchorPane.topAnchor="8.0">
             <Image url="@../assets/girl.PNG" />
          </ImageView>
-         <Label layoutX="91.0" layoutY="13.0" minHeight="-Infinity" minWidth="-Infinity" styleClass="label, bold-text" text="Chat Mate" AnchorPane.leftAnchor="100.0" AnchorPane.topAnchor="6.0" />
-         <Label layoutX="92.0" layoutY="36.0" styleClass="status, disconnected" text="Disconnected" AnchorPane.bottomAnchor="6.0" AnchorPane.leftAnchor="100.0" />
+         <Label fx:id="lblName" layoutX="91.0" layoutY="13.0" minHeight="-Infinity" minWidth="-Infinity" styleClass="label, bold-text" AnchorPane.leftAnchor="100.0" AnchorPane.topAnchor="6.0" />
+         <Label fx:id="lblStatus" layoutX="92.0" layoutY="36.0" styleClass="status" text="Online" AnchorPane.bottomAnchor="6.0" AnchorPane.leftAnchor="100.0" />
          <Button fx:id="btnLogout" layoutX="937.0" layoutY="21.0" onMouseClicked="#logout" styleClass="btn, btn-link" text="Log Out" AnchorPane.bottomAnchor="8.0" AnchorPane.rightAnchor="28.0" AnchorPane.topAnchor="8.0" />
       </AnchorPane>
 

@@ -98,7 +98,7 @@ TextInput {
 }
 
 .status {
-    -fx-font-weight: light;
+    /*-fx-font-weight: light;*/
     -fx-font-size: 14;
 }
 

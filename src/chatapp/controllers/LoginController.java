@@ -1,6 +1,7 @@
 package chatapp.controllers;
 
 import chatapp.Main;
+import chatapp.repositories.ClientRepository;
 import chatapp.repositories.ControllerInstance;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -29,7 +30,7 @@ public class LoginController {
 
     @FXML
     public void login() throws Exception {
-        boolean isPortOpen = true;
+        boolean isPortOpen = true, isReconnecting = false;
 
         String username = fUsername.getText();
         String ip = fIPAddress.getText();
@@ -39,8 +40,28 @@ public class LoginController {
             int portNum = Integer.parseInt(port);
 
             try {
-                Client client = new Client(username, ip, portNum);
-                client.initialize();
+                if ( !ClientRepository.isFull() ) {
+                    Client client = new Client(username, ip, portNum);
+                    ClientRepository.addClient(client.getUsername());
+                    client.initialize();
+                } else {
+                    if (ClientRepository.containsClient(username)) {
+                        System.out.println("Contains Client");
+
+                        ChatController c = (ChatController) Main.changeScene("views/chat.fxml");
+                        ControllerInstance.setChatController(c);
+
+
+                        String name = ClientRepository.getClientList().get(0).equals(username) ?
+                                ClientRepository.getClientList().get(1) :
+                                ClientRepository.getClientList().get(0);
+
+                        c.showChat(name);
+                        isReconnecting = true;
+                    } else {
+                        createErrorMessage(hbUsername, lblUsername, "  Chat room is full.");
+                    }
+                }
             } catch (ConnectException e) {
                 System.out.println("Connection refused: Server not started.");
                 isPortOpen = false;
@@ -48,7 +69,7 @@ public class LoginController {
                 createErrorMessage(hbPort, lblPort, "  Please check if your port is open.");
             }
 
-            if (isPortOpen) {
+            if (isPortOpen && !isReconnecting) {
                 ChatController c = (ChatController) Main.changeScene("views/chat.fxml");
                 ControllerInstance.setChatController(c);
             }
