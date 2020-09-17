@@ -51,6 +51,7 @@
          </ImageView>
       </AnchorPane>
    </AnchorPane>
+
    <BorderPane fx:id="matchingScreen" prefHeight="768.0" prefWidth="1024.0" styleClass="root" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
       <center>
          <Label layoutX="446.0" layoutY="376.0" styleClass="header, bold-text" text="Matching..." />

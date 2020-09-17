@@ -4,6 +4,7 @@ package chatapp.controllers;
 import chatapp.repositories.ControllerInstance;
 import chatapp.repositories.MessageRepository;
 import javafx.application.Platform;
+import javafx.fxml.FXMLLoader;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -90,7 +91,18 @@ public class Client {
                     clients.get(0);
 
             Platform.runLater(() -> {
-                ChatController controller = ControllerInstance.getChatController();
+                FXMLLoader loader = new FXMLLoader();
+                loader.setLocation(getClass().getResource("../views/chat.fxml"));
+
+                try {
+                    loader.load();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                ChatController controller = loader.getController();
+
+//                ChatController controller = ControllerInstance.getChatController();
                 controller.showChat(otherClient);
             });
             sendMessage().start();

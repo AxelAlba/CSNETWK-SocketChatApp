@@ -2,7 +2,9 @@ package chatapp.controllers;
 
 import chatapp.Main;
 import chatapp.repositories.ControllerInstance;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -15,6 +17,9 @@ public class LoginController {
 
     @FXML
     TextField fIPAddress, fPort, fUsername;
+
+    @FXML
+    Label lblUsername, lblPort, lblIP;
 
     @FXML
     Button btnLogin;
@@ -39,8 +44,8 @@ public class LoginController {
             } catch (ConnectException e) {
                 System.out.println("Connection refused: Server not started.");
                 isPortOpen = false;
-                createErrorMessage(hbIP, "  Please check your IP");
-                createErrorMessage(hbPort,"  Please check if your port is open.");
+                createErrorMessage(hbIP, lblIP, "  Please check your IP");
+                createErrorMessage(hbPort, lblPort, "  Please check if your port is open.");
             }
 
             if (isPortOpen) {
@@ -49,22 +54,25 @@ public class LoginController {
             }
         } else {
             if (!isValidUsername(username)) {
-                createErrorMessage(hbUsername, "  Please enter a username.");
+                createErrorMessage(hbUsername, lblUsername, "  Please enter a username.");
             }
 
             if (!isValidIP(ip)) {
-                createErrorMessage(hbIP, "  Please enter a valid IP Address.");
+                createErrorMessage(hbIP, lblIP,"  Please enter a valid IP Address.");
             }
 
             if (!isValidPort(port)) {
-                createErrorMessage(hbPort, "  Please enter a valid port number.");
+                createErrorMessage(hbPort, lblPort,"  Please enter a valid port number.");
             }
         }
     }
 
-    private void createErrorMessage(HBox parent, String message) {
+    private void createErrorMessage(HBox parent, Label label, String message) {
         Label err = new Label(message);
         err.getStyleClass().addAll("error", "label", "italic");
+        parent.getChildren().clear();
+        parent.getChildren().add(label);
+
         parent.getChildren().add(err);
     }
 
