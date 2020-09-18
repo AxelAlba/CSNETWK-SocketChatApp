@@ -148,9 +148,13 @@ class ClientHandler implements Runnable
                 received = disReader.readUTF(); 
 
                 // break the string into message and recipient part 
-                StringTokenizer st = new StringTokenizer(received, ":"); 
+                StringTokenizer st = new StringTokenizer(received, ":");
                 String sender = st.nextToken(); 
-                String MsgToSend = st.nextToken(); 
+                String MsgToSend;
+                if (st.countTokens() >= 1)
+                    MsgToSend = st.nextToken(); 
+                else 
+                    MsgToSend = "";
 
                 // FOR DISCONNECTION
                 if(MsgToSend.equals("-logout")){ 

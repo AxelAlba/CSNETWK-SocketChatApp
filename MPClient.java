@@ -36,16 +36,17 @@ public class MPClient  {
                         while (flag) {         
                         // read the message to deliver to the server. 
                         String msg = scanner.nextLine(); 
-                        
-                        // NOTE: assume that the path name does not have spaces..
-                        StringTokenizer st = new StringTokenizer(msg, " "); 
-                        String command = st.nextToken();
+                        String command = "";
+                        StringTokenizer st = new StringTokenizer(msg, " ");
+                        if (st.countTokens() >= 2)
+                            command = msg.substring(0, msg.indexOf(' '));
                         
                         //FOR FILE SENDING
                         if (command.equals("-sendFile")){
-                            String path = st.nextToken();
+                            String path = msg.substring(msg.indexOf(' ') + 1);
                             try {
                                 FileInputStream fileInput = new FileInputStream(path);
+                                BufferedInputStream bis = new BufferedInputStream(fileInput);
                                 int bytes = (int)fileInput.getChannel().size();
 
                                 // message format: username:-sendFile:"# Of Bytes":"File Extension" 
@@ -53,9 +54,9 @@ public class MPClient  {
 
                                 // sending of bytes to server
                                 byte[] b = new byte[bytes];
-                                fileInput.read(b, 0, b.length);
+                                bis.read(b, 0, b.length);
                                 dosWriter.write(b, 0, b.length);                                
-                                fileInput.close();
+                                bis.close();
 
                             } catch(Exception e) {
                                 e.printStackTrace();
@@ -89,7 +90,11 @@ public class MPClient  {
                             String msg = disReader.readUTF(); 
                             StringTokenizer st = new StringTokenizer(msg, ":");
                             String username = st.nextToken();
-                            String command = st.nextToken(); //PROBLEM EXIST HERE
+                            String command;
+                            if (st.countTokens() >= 1)
+                                command = st.nextToken();
+                            else 
+                                command = "";
 
                             // FOR FILE RECEIVING
                             if (command.equals("-sendFile")){
@@ -103,11 +108,13 @@ public class MPClient  {
 
                                 // creation of file
                                 FileOutputStream fr = new FileOutputStream("received"+"."+extension);
-
-                                // copy bytes to file
+                                BufferedOutputStream bos = new BufferedOutputStream(fr);
+                                // copy bytes to bytes array
                                 disReader.read(b, 0, b.length);
-                                fr.write(b, 0, b.length);
-                                fr.close();
+
+                                // write bytes to file
+                                bos.write(b, 0, b.length);
+                                bos.close();
 
                                 System.out.println("(Server: "+"received"+"."+extension+" downloaded)");           
                             }
