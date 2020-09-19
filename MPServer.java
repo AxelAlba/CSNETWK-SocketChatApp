@@ -261,14 +261,14 @@ class ClientHandler implements Runnable
                     for (ClientHandler client : MPServer.activeClients){ 
                         // finds the other user and sent to its inputStream
                         if (!(client.name.equals(sender))){ 
-
+                            String message = received.substring(received.indexOf(':') + 1);
                             // send message succeed
                             if(client.isActive == true){
-                                client.dosWriter.writeUTF(this.name +": "+ MsgToSend); 
+                                client.dosWriter.writeUTF(this.name +": "+ message); 
 
                                 timeStamp = new SimpleDateFormat("yyyy.MM.dd HH.mm.ss").format(new Date());
-                                System.out.println("Server: "+this.name+" sent \""+MsgToSend+"\" to " + client.name + " ("+timeStamp+")");
-                                MPServer.logs += "Server: "+this.name+" sent \""+MsgToSend+"\" to " + client.name + " ("+timeStamp+")\n";
+                                System.out.println("Server: "+this.name+" sent \""+message+"\" to " + client.name + " ("+timeStamp+")");
+                                MPServer.logs += "Server: "+this.name+" sent \""+message+"\" to " + client.name + " ("+timeStamp+")\n";
                                 break;
                             }
 
@@ -277,8 +277,8 @@ class ClientHandler implements Runnable
                                 this.dosWriter.writeUTF(client.name+":-messageFailed");
 
                                 timeStamp = new SimpleDateFormat("yyyy.MM.dd HH.mm.ss").format(new Date());
-                                System.out.println("Server: "+ this.name +" failed to send \""+MsgToSend+"\" to " + client.name + " ("+timeStamp+")");
-                                MPServer.logs += "Server: "+ this.name +" failed to send \""+MsgToSend+"\" to " + client.name + " ("+timeStamp+")\n";
+                                System.out.println("Server: "+ this.name +" failed to send \""+message+"\" to " + client.name + " ("+timeStamp+")");
+                                MPServer.logs += "Server: "+ this.name +" failed to send \""+message+"\" to " + client.name + " ("+timeStamp+")\n";
                                 break;
                             }
                         } 
