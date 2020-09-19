@@ -6,7 +6,6 @@ import chatapp.repositories.MessageRepository;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
@@ -30,10 +29,7 @@ public class ChatController implements Initializable {
     VBox chatContainer;
 
     @FXML
-    Label textDownload;
-
-    @FXML
-    Label lblName, lblStatus;
+    Label textDownload, lblName, lblStatus;
 
     @FXML
     ImageView imgProfile, btnDownload;

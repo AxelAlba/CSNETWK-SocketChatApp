@@ -1,5 +1,6 @@
 package chatapp.repositories;
 
+import chatapp.controllers.Client;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -9,6 +10,7 @@ import java.util.List;
 
 public class ClientRepository {
 
+    private static Client thisClient;
     private static volatile boolean clientAdded = false;
     private static ObservableList<String> observableClientList = FXCollections.observableList(new ArrayList<>());
 
@@ -32,5 +34,13 @@ public class ClientRepository {
 
     public static synchronized boolean isFull() {
         return observableClientList.size() == 2;
+    }
+
+    public static void setThisClient(Client client) {
+        thisClient = client;
+    }
+
+    public static Client getThisClient() {
+        return thisClient;
     }
 }

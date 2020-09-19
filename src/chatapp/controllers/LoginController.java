@@ -3,9 +3,7 @@ package chatapp.controllers;
 import chatapp.Main;
 import chatapp.repositories.ClientRepository;
 import chatapp.repositories.ControllerInstance;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -43,20 +41,18 @@ public class LoginController {
                 if ( !ClientRepository.isFull() ) {
                     Client client = new Client(username, ip, portNum);
                     ClientRepository.addClient(client.getUsername());
+                    ClientRepository.setThisClient(client);
                     client.initialize();
                 } else {
                     if (ClientRepository.containsClient(username)) {
-                        System.out.println("Contains Client");
-
                         ChatController c = (ChatController) Main.changeScene("views/chat.fxml");
                         ControllerInstance.setChatController(c);
 
-
-                        String name = ClientRepository.getClientList().get(0).equals(username) ?
+                        String otherName = ClientRepository.getClientList().get(0).equals(username) ?
                                 ClientRepository.getClientList().get(1) :
                                 ClientRepository.getClientList().get(0);
 
-                        c.showChat(name);
+                        c.showChat(otherName);
                         isReconnecting = true;
                     } else {
                         createErrorMessage(hbUsername, lblUsername, "  Chat room is full.");
@@ -116,9 +112,8 @@ public class LoginController {
     }
 
     private boolean isValidLogin() {
-        if (fIPAddress.getText().equals("") || fPort.getText().equals("")) {
+        if (fIPAddress.getText().equals("") || fPort.getText().equals(""))
             return false;
-        }
 
         String username = fUsername.getText();
         String ip = fIPAddress.getText();

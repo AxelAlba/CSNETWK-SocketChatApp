@@ -1,14 +1,14 @@
 package chatapp;
 
+import chatapp.controllers.Client;
 import chatapp.repositories.ClientRepository;
+import chatapp.repositories.MessageRepository;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import javafx.stage.Window;
-
-import java.io.IOException;
 
 public class Main extends Application {
     private static Stage mPrimaryStage;
@@ -27,6 +27,14 @@ public class Main extends Application {
         mPrimaryStage.setScene(scene);
         mPrimaryStage.setResizable(false);
         mPrimaryStage.show();
+        mPrimaryStage.setOnCloseRequest(e -> {
+            MessageRepository.addMessage("-logout");
+            Client thisClient = ClientRepository.getThisClient();
+            thisClient.stopAllThreads();
+
+            Platform.exit();
+            System.exit(0);
+        });
     }
 
     public static Object changeScene(String fxml) throws Exception {

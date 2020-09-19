@@ -20,6 +20,7 @@ public class Client {
     private final DataInputStream mReader;
     private final DataOutputStream mWriter;
     private final Socket mClientEndpoint;
+    private Thread sendMessage, readMessage, waitThread;
 
     private String otherClient;
 
@@ -31,19 +32,22 @@ public class Client {
         mWriter = new DataOutputStream(mClientEndpoint.getOutputStream());
     }
 
-
     public void initialize() {
         try {
             System.out.println("Successfully connected to server at " + mClientEndpoint.getRemoteSocketAddress());
+
             mWriter.writeUTF(mUsername);
-            waitThread().start();
+            waitThread = waitThread();
+            sendMessage = sendMessage();
+            readMessage = readMessage();
+
+            waitThread.start();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     public String getUsername() { return mUsername; }
-
 
     private Thread sendMessage() {
         MessageRepository.initialize();
@@ -103,17 +107,22 @@ public class Client {
             }
 
             ClientRepository.initialize(clientList);
-            otherClient = (ClientRepository.getClientList().get(0).equals(mUsername)) ?
-                    ClientRepository.getClientList().get(1) :
-                    ClientRepository.getClientList().get(0);
+            otherClient = (clientList.get(0).equals(mUsername)) ?
+                    clientList.get(1) :
+                    clientList.get(0);
 
             Platform.runLater(() -> {
                 ChatController controller = ControllerInstance.getChatController();
                 controller.showChat(otherClient);
-
+                sendMessage.start();
+                readMessage.start();
             });
-            sendMessage().start();
-            readMessage().start();
         });
+    }
+
+    public void stopAllThreads() {
+        waitThread = null;
+        sendMessage = null;
+        readMessage = null;
     }
 }
