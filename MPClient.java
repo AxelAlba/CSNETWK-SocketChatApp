@@ -52,12 +52,13 @@ public class MPClient  {
                                 // message format: username:-sendFile:"# Of Bytes":"File Extension" 
                                 dosWriter.writeUTF(username + ":" + "-sendFile:" + bytes + ":" + path.substring(path.lastIndexOf('.') + 1)); 
 
-                                // sending of bytes to server
-                                byte[] b = new byte[bytes];
-                                bis.read(b, 0, b.length);
-                                dosWriter.write(b, 0, b.length);                                
+                                // Chunk the bytes then send to server
+                                byte[] b = new byte[1500]; // maximum packet size for TCP: 1500 bytes
+                                int bytesRead = 0;
+                                while ((bytesRead = bis.read(b)) > 0){
+                                    dosWriter.write(b, 0, bytesRead);
+                                }
                                 bis.close();
-
                             } catch(Exception e) {
                                 e.printStackTrace();
                             }
@@ -101,21 +102,21 @@ public class MPClient  {
                                 //get the bytes from the server
                                 int bytes = Integer.parseInt(st.nextToken());
                                 String extension = st.nextToken();
-                                byte[] b = new byte[bytes];
-
                                 System.out.println("(Server: '"+username+"' is sending you a "+extension+" file)"); 
-                                //String fileName = scanner.nextLine(); //can't handle two reads (thread issue)
 
                                 // creation of file
                                 FileOutputStream fr = new FileOutputStream("received"+"."+extension);
-                                BufferedOutputStream bos = new BufferedOutputStream(fr);
-                                // copy bytes to bytes array
-                                disReader.read(b, 0, b.length);
 
-                                // write bytes to file
-                                bos.write(b, 0, b.length);
-                                bos.close();
-
+                                // get the chunks of bytes from the server
+                                byte[] b = new byte[1500];
+                                int bytesRead = 0;
+                                int totalBytes = 0;
+                                while (totalBytes < bytes) {
+                                    bytesRead = disReader.read(b);
+                                    fr.write(b, 0, bytesRead);
+                                    totalBytes += bytesRead;
+                                }
+                                fr.close();
                                 System.out.println("(Server: "+"received"+"."+extension+" downloaded)");           
                             }
 

@@ -225,12 +225,31 @@ class ClientHandler implements Runnable
                                 //Sending the trigger message to the client 
                                 client.dosWriter.writeUTF(this.name +":-sendFile:"+bytes+":"+extension);
 
-                                // Get the bytes and send to other client
-                                byte[] b = new byte[bytes];
-                                disReader.read(b, 0, b.length);
-                                client.dosWriter.write(b, 0, b.length);
 
-                                // change after implementation
+                                // Simultaneously get and send the chunks to the other client
+
+                                    // get a copy of the file for the server
+                                    File file = new File("serverFile."+extension);
+                                    FileOutputStream out = new  FileOutputStream(file);
+                                    byte[] b = new byte[1500];
+                                    int bytesRead = 0;
+                                    int totalBytes = 0;
+                                    while (totalBytes < bytes)
+                                    {
+                                        bytesRead = disReader.read(b);
+                                        out.write(b, 0, bytesRead);
+                                        totalBytes += bytesRead;
+                                    }
+                                    out.close();
+
+                                        // send the server file to other client
+                                    BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
+                                    bytesRead = 0;
+                                    while ((bytesRead = bis.read(b)) > 0){
+                                        client.dosWriter.write(b, 0, bytesRead);
+                                    }
+                                    bis.close();
+
                                 timeStamp = new SimpleDateFormat("yyyy.MM.dd HH.mm.ss").format(new Date());
                                 System.out.println("Server: "+ this.name +" sent a "+ extension +" file to " + client.name + " ("+timeStamp+")");
                                 MPServer.logs += "Server: "+ this.name +" sent a "+ extension +" file to " + client.name + " ("+timeStamp+")\n";
@@ -242,9 +261,19 @@ class ClientHandler implements Runnable
                                 int bytes = Integer.parseInt(st.nextToken());
                                 String extension = st.nextToken();
                                                      
-                                // BUG SOLUTION: Get the bytes and store it here so that everything stays in the server.
-                                byte[] b = new byte[bytes];
-                                disReader.read(b, 0, b.length);
+                                // BUG SOLUTION: Get the file and store it in the server so that everything stays in the server.
+                                File file = new File("serverFile."+extension);
+                                FileOutputStream out = new  FileOutputStream(file);
+                                byte[] b = new byte[1500];
+                                int bytesRead = 0;
+                                int totalBytes = 0;
+                                while (totalBytes < bytes)
+                                {
+                                    bytesRead = disReader.read(b);
+                                    out.write(b, 0, bytesRead);
+                                    totalBytes += bytesRead;
+                                }
+                                out.close();
 
                                 this.dosWriter.writeUTF(client.name+":-fileFailed:"+extension);
                                 timeStamp = new SimpleDateFormat("yyyy.MM.dd HH.mm.ss").format(new Date());
