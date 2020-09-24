@@ -41,7 +41,29 @@ public class MPServer {
                     dosWriter = new DataOutputStream(serverEndpoint.getOutputStream());
 
                     // to check the username sent by the client
-                    username = disReader.readUTF();    
+                    username = disReader.readUTF(); 
+                    
+                    // for uniqueness of username
+                    Boolean isAccepted = false;
+                    if (activeClients.size() == 1){
+                        if (MPServer.activeClients.get(0).name.equals(username)){
+                            while (!isAccepted){
+                                dosWriter.writeUTF("-rejectUsername");
+                                username = disReader.readUTF();
+                                if (!MPServer.activeClients.get(0).name.equals(username)){
+                                    isAccepted = true;
+                                    dosWriter.writeUTF("-acceptUsername");
+                                }
+                            }
+                        }
+                        else {
+                            isAccepted = true;
+                            dosWriter.writeUTF("-acceptUsername");
+                        }
+                    }
+                    else dosWriter.writeUTF("-acceptUsername");                    
+
+                    // creating the handler
                     handler = new ClientHandler(serverEndpoint, username, disReader, dosWriter); 
                     t = new Thread(handler); 
 
@@ -71,6 +93,26 @@ public class MPServer {
                     
                     // to check the username sent by the client
                     username = disReader.readUTF();
+
+                    // for uniqueness of username
+                    Boolean isAccepted = false;
+                    if (activeClients.size() == 1){
+                        if (MPServer.activeClients.get(0).name.equals(username)){
+                            while (!isAccepted){
+                                dosWriter.writeUTF("-rejectUsername");
+                                username = disReader.readUTF();
+                                if (!MPServer.activeClients.get(0).name.equals(username)){
+                                    isAccepted = true;
+                                    dosWriter.writeUTF("-acceptUsername");
+                                }
+                            }
+                        }
+                        else {
+                            isAccepted = true;
+                            dosWriter.writeUTF("-acceptUsername");
+                        }
+                    }
+                    else dosWriter.writeUTF("-acceptUsername");
 
                     // RECONNECTION
                     boolean isPastUser = false;
