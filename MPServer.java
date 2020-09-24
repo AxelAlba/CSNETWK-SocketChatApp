@@ -56,6 +56,12 @@ public class MPServer {
 
                 //for reconnecting or denying new clients
                 else { 
+                    // Sends the client list to clients
+                    for (ClientHandler client : activeClients) {
+                      for (ClientHandler c : activeClients) {
+                        client.dosWriter.writeUTF(c.name);
+                      }
+                    }
                     serverEndpoint = serverSocket.accept();
                     disReader = new DataInputStream(serverEndpoint.getInputStream());
                     dosWriter = new DataOutputStream(serverEndpoint.getOutputStream());
