@@ -20,6 +20,10 @@ public class ClientRepository {
         observableClientList.addListener((ListChangeListener) change -> clientAdded = true);
     }
 
+    public static synchronized void initialize() {
+        observableClientList.addListener((ListChangeListener) change -> clientAdded = true);
+    }
+
     public static synchronized ObservableList<String> getClientList() {
         return observableClientList;
     }
@@ -34,6 +38,10 @@ public class ClientRepository {
 
     public static synchronized boolean isFull() {
         return observableClientList.size() == 2;
+    }
+
+    public static synchronized void clearClients() {
+        initialize(new ArrayList<>());
     }
 
     public static void setThisClient(Client client) {

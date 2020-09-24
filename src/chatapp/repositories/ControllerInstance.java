@@ -6,7 +6,8 @@ public class ControllerInstance {
     private static ChatController chatController = null;
 
     public static void setChatController(ChatController c) {
-        chatController = c;
+        if (chatController == null)
+            chatController = c;
     }
 
     public static ChatController getChatController() {

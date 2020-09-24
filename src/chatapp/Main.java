@@ -28,9 +28,13 @@ public class Main extends Application {
         mPrimaryStage.setResizable(false);
         mPrimaryStage.show();
         mPrimaryStage.setOnCloseRequest(e -> {
-            MessageRepository.addMessage("-logout");
             Client thisClient = ClientRepository.getThisClient();
-            thisClient.stopAllThreads();
+            if (thisClient != null) {
+                MessageRepository.addMessage("-logout");
+                thisClient.stopAllThreads();
+            }
+
+            ClientRepository.clearClients();
 
             Platform.exit();
             System.exit(0);

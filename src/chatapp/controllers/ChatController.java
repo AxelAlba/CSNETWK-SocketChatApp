@@ -18,8 +18,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -80,8 +78,14 @@ public class ChatController implements Initializable {
         ImageObject.setRoundCorners(imgProfile, 50);
     }
 
+    public void receiveMessage(String message) {
+        if (message.length() > 0) {
+            message = message.split(":")[1];
+            createMessageItem(Constants.TEXT, Constants.RECEIVE, message);
+        }
+    }
+
     public void showChat(String name) {
-        System.out.println("showChat");
         matchingScreen.toBack();
         lblName.setText(name);
     }
@@ -96,11 +100,25 @@ public class ChatController implements Initializable {
         lblStatus.getStyleClass().remove("disconnected");
     }
 
-    public void receiveMessage(String message) {
-        message = message.split(":")[1];
-        if (message.length() > 0) {
-            createMessageItem(Constants.TEXT, Constants.RECEIVE, message);
-        }
+    private void viewImage(ImageView img) {
+        imageViewer.setCenter(img);
+        imageViewer.toFront();
+        imageViewer.setOnMouseClicked(e -> imageViewer.toBack());
+
+        ImageObject imageFile = new ImageObject(img);
+        textDownload.setOnMouseClicked(e -> imageFile.downloadImage());
+        btnDownload.setOnMouseClicked(e -> imageFile.downloadImage());
+    }
+
+    private void downloadFile() {
+        FileChooser fc = new FileChooser();
+        fc.setTitle("Download File");
+        fc.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("All Files", "*.docx", "*.pdf", "*.txt")
+        );
+
+        File savedFile = fc.showSaveDialog(Main.getPrimaryStage());
+        String path = savedFile.getPath();
     }
 
     public void createMessageItem(int messageType, int action, String data) {
@@ -123,16 +141,6 @@ public class ChatController implements Initializable {
         }
 
         chatContainer.getChildren().add(bp);
-    }
-
-    private void viewImage(ImageView img) {
-        imageViewer.setCenter(img);
-        imageViewer.toFront();
-        imageViewer.setOnMouseClicked(e -> imageViewer.toBack());
-
-        ImageObject imageFile = new ImageObject(img);
-        textDownload.setOnMouseClicked(e -> imageFile.downloadImage());
-        btnDownload.setOnMouseClicked(e -> imageFile.downloadImage());
     }
 
     private Node createTextMessageItem(String text, int action) {
@@ -175,14 +183,4 @@ public class ChatController implements Initializable {
         return container;
     }
 
-    private void downloadFile() {
-        FileChooser fc = new FileChooser();
-        fc.setTitle("Download File");
-        fc.getExtensionFilters().addAll(
-            new FileChooser.ExtensionFilter("All Files", "*.docx", "*.pdf", "*.txt")
-        );
-
-        File savedFile = fc.showSaveDialog(Main.getPrimaryStage());
-        String path = savedFile.getPath();
-    }
 }

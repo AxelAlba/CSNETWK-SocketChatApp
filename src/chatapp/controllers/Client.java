@@ -5,7 +5,6 @@ import chatapp.repositories.ClientRepository;
 import chatapp.repositories.ControllerInstance;
 import chatapp.repositories.MessageRepository;
 import javafx.application.Platform;
-import javafx.fxml.FXMLLoader;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -13,15 +12,18 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Client {
     private final String mUsername;
-    private final DataInputStream mReader;
-    private final DataOutputStream mWriter;
+    private DataInputStream mReader;
+    private DataOutputStream mWriter;
     private final Socket mClientEndpoint;
     private Thread sendMessage, readMessage, waitThread;
 
+    private List<String> mClientList = new ArrayList<>();
     private String otherClient;
 
 
@@ -35,7 +37,8 @@ public class Client {
     public void initialize() {
         try {
             System.out.println("Successfully connected to server at " + mClientEndpoint.getRemoteSocketAddress());
-            mWriter.writeUTF(mUsername);
+            mWriter.writeUTF(mUsername); // Signals the server to send the client list
+
             waitThread = waitThread();
             sendMessage = sendMessage();
             readMessage = readMessage();
@@ -51,6 +54,7 @@ public class Client {
     private Thread sendMessage() {
         MessageRepository.initialize();
         return new Thread(() -> {
+            System.out.println("Send Message: start");
             while (!MessageRepository.getLastMessage().equals("-logout")) {
                 while (!MessageRepository.isChanged());
                 if (MessageRepository.getMessageCount() > 0) {
@@ -68,6 +72,7 @@ public class Client {
 
     private Thread readMessage() {
         return new Thread(() -> {
+            System.out.println("read Message: start");
             while (!MessageRepository.getLastMessage().equals("-logout")) {
                 try {
                     String message = mReader.readUTF();
@@ -93,34 +98,34 @@ public class Client {
 
     private Thread waitThread() {
         return new Thread(() -> {
-            List<String> clientList = new ArrayList<>();
+            ClientRepository.initialize();
 
-            while (clientList.size() < 2) {
+            // Filling the client list
+            while (ClientRepository.getClientList().size() < 2) {
                 try {
                     String client = mReader.readUTF();
-                    clientList.add(client);
+                    if (!ClientRepository.getClientList().contains(client))
+                        ClientRepository.addClient(client);
                 } catch (IOException e) {
                     e.printStackTrace();
                     break;
                 }
             }
 
-            ClientRepository.initialize(clientList);
-            otherClient = (clientList.get(0).equals(mUsername)) ?
-                    clientList.get(1) :
-                    clientList.get(0);
+            // Choosing the other client
+            otherClient = (ClientRepository.getClientList().get(0).equals(mUsername)) ?
+                    ClientRepository.getClientList().get(1) :
+                    ClientRepository.getClientList().get(0);
 
-            for (String c : ClientRepository.getClientList())
-                System.out.println(c);
-
+            // Show the chat pane
             Platform.runLater(() -> {
                 ChatController controller = ControllerInstance.getChatController();
-                System.out.println(controller);
                 controller.showChat(otherClient);
-
-                sendMessage.start();
-                readMessage.start();
             });
+
+            // Start the send and read threads
+            sendMessage.start();
+            readMessage.start();
         });
     }
 

@@ -38,18 +38,17 @@ public class LoginController {
             int portNum = Integer.parseInt(port);
 
             try {
-                if (!ClientRepository.isFull()) {
+                if (!ClientRepository.isFull()) { // 1st time login or login from closed window
                     Client client = new Client(username, ip, portNum);
                     ClientRepository.addClient(client.getUsername());
                     ClientRepository.setThisClient(client);
                     client.initialize();
-                } else {
+                } else { // Client repository is full
                     if (ClientRepository.containsClient(username)) {
                         Client client = new Client(username, ip, portNum);
                         client.initialize();
 
                         ChatController c = (ChatController) Main.changeScene("views/chat.fxml");
-                        ControllerInstance.setChatController(c);
 
                         String otherName = ClientRepository.getClientList().get(0).equals(username) ?
                                 ClientRepository.getClientList().get(1) :
