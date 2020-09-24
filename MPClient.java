@@ -14,7 +14,7 @@ public class MPClient  {
         try{
             System.out.println("Please Login...");
             System.out.println("Enter your username: ");
-            String username = scanner.nextLine(); 
+            String tempName = scanner.nextLine(); 
 
             // ask the ip and port here
             Socket clientEndpoint = new Socket("localhost", ServerPort); 
@@ -22,11 +22,21 @@ public class MPClient  {
             // obtaining input and out streams 
             DataInputStream disReader = new DataInputStream(clientEndpoint.getInputStream()); 
             DataOutputStream dosWriter = new DataOutputStream(clientEndpoint.getOutputStream()); 
-
-            System.out.println(": Successfully connected to server at " + clientEndpoint.getRemoteSocketAddress());
-                
+      
             // send the username to the server
-            dosWriter.writeUTF(username);
+            dosWriter.writeUTF(tempName);
+
+             // wait for the response of the server if username is valid or not
+             String response = disReader.readUTF();
+             while(response.equals("-rejectUsername")){
+                 System.out.println("Username already gotten, please try again: ");
+                 tempName = scanner.nextLine(); 
+                 dosWriter.writeUTF(tempName);
+                 response = disReader.readUTF();
+             }
+             String username = tempName;
+ 
+             System.out.println(": Successfully connected to server at " + clientEndpoint.getRemoteSocketAddress());
 
             // sendMessage thread 
             Thread sendMessage = new Thread(new Runnable()  { 
