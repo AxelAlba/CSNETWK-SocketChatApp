@@ -38,13 +38,16 @@ public class LoginController {
             int portNum = Integer.parseInt(port);
 
             try {
-                if ( !ClientRepository.isFull() ) {
+                if (!ClientRepository.isFull()) {
                     Client client = new Client(username, ip, portNum);
                     ClientRepository.addClient(client.getUsername());
                     ClientRepository.setThisClient(client);
                     client.initialize();
                 } else {
                     if (ClientRepository.containsClient(username)) {
+                        Client client = new Client(username, ip, portNum);
+                        client.initialize();
+
                         ChatController c = (ChatController) Main.changeScene("views/chat.fxml");
                         ControllerInstance.setChatController(c);
 

@@ -76,7 +76,7 @@ public class ImageObject {
     }
 
     public static void setRoundCorners(ImageView img, int value) {
-        Rectangle clip = new Rectangle(img.getImage().getWidth(), img.getImage().getHeight());
+        Rectangle clip = new Rectangle(img.getFitWidth(), img.getFitHeight());
         clip.setArcHeight(value);
         clip.setArcWidth(value);
         img.setClip(clip);

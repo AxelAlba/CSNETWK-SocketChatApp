@@ -35,7 +35,6 @@ public class Client {
     public void initialize() {
         try {
             System.out.println("Successfully connected to server at " + mClientEndpoint.getRemoteSocketAddress());
-
             mWriter.writeUTF(mUsername);
             waitThread = waitThread();
             sendMessage = sendMessage();
@@ -111,9 +110,14 @@ public class Client {
                     clientList.get(1) :
                     clientList.get(0);
 
+            for (String c : ClientRepository.getClientList())
+                System.out.println(c);
+
             Platform.runLater(() -> {
                 ChatController controller = ControllerInstance.getChatController();
+                System.out.println(controller);
                 controller.showChat(otherClient);
+
                 sendMessage.start();
                 readMessage.start();
             });

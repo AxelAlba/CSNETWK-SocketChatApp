@@ -2,6 +2,7 @@ package chatapp.controllers;
 
 import chatapp.Constants;
 import chatapp.Main;
+import chatapp.repositories.ClientRepository;
 import chatapp.repositories.MessageRepository;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -17,6 +18,8 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -66,6 +69,9 @@ public class ChatController implements Initializable {
     @FXML
     private void logout() throws Exception {
         MessageRepository.addMessage("-logout");
+        Client thisClient = ClientRepository.getThisClient();
+        thisClient.stopAllThreads();
+
         Main.changeScene("views/login.fxml");
     }
 
@@ -75,6 +81,7 @@ public class ChatController implements Initializable {
     }
 
     public void showChat(String name) {
+        System.out.println("showChat");
         matchingScreen.toBack();
         lblName.setText(name);
     }
@@ -90,6 +97,7 @@ public class ChatController implements Initializable {
     }
 
     public void receiveMessage(String message) {
+        message = message.split(":")[1];
         if (message.length() > 0) {
             createMessageItem(Constants.TEXT, Constants.RECEIVE, message);
         }
