@@ -4,7 +4,7 @@ import java.util.Scanner;
 import java.util.StringTokenizer;
   
 public class MPClient  { 
-    final static int ServerPort = 1234; // temporary, user should be asked.
+    final static int ServerPort = 8000; // temporary, user should be asked.
   
     public static void main(String args[]) throws UnknownHostException, IOException { 
 

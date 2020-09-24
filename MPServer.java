@@ -9,7 +9,7 @@ public class MPServer {
     // Vector to store active clients
     static Vector<ClientHandler> activeClients = new Vector<>();
     // counter for the clients
-    final static int ServerPort = 1234;
+    final static int ServerPort = 8000;
     // to store the logs of the clients
     static String logs;
     public static void main(String[] args) {
@@ -52,16 +52,19 @@ public class MPServer {
                     //adding the client to the activeClients vector of the server
                     activeClients.add(handler); 
                     t.start();    
+
+                    if (activeClients.size() == 2) {
+                      // Sends the client list to clients
+                      for (ClientHandler client : activeClients) {
+                        for (ClientHandler c : activeClients) {
+                          client.dosWriter.writeUTF(c.name);
+                        }
+                      }
+                    }
                 }  
 
                 //for reconnecting or denying new clients
                 else { 
-                    // Sends the client list to clients
-                    for (ClientHandler client : activeClients) {
-                      for (ClientHandler c : activeClients) {
-                        client.dosWriter.writeUTF(c.name);
-                      }
-                    }
                     serverEndpoint = serverSocket.accept();
                     disReader = new DataInputStream(serverEndpoint.getInputStream());
                     dosWriter = new DataOutputStream(serverEndpoint.getOutputStream());
@@ -75,10 +78,17 @@ public class MPServer {
                         if (client.name.equals(username) && client.isActive == false) {   
                             //client reconnects here                          
                             client.reconnect(serverEndpoint, disReader, dosWriter);
+                            
+                            // Send the client list to the returning client
+                            for (ClientHandler c : activeClients) {
+                                client.dosWriter.writeUTF(c.name);
+                            }
+
                             t = new Thread(client);
                             t.start();
                             isPastUser = true;
-                            client.dosWriter.writeUTF(client.name+":"+"-ownReconnect");
+
+                            // client.dosWriter.writeUTF(client.name+":"+"-ownReconnect");
                             
                             //notify the other client
                             for (ClientHandler client2 : MPServer.activeClients)  
@@ -137,6 +147,7 @@ class ClientHandler implements Runnable
     }
 
     public void reconnect(Socket s, DataInputStream disReader, DataOutputStream dosWriter){
+        System.out.println("Reconnected");
         this.disReader = disReader; 
         this.dosWriter = dosWriter;
         this.s = s; 
@@ -152,6 +163,7 @@ class ClientHandler implements Runnable
             try{ 
                 // receive the string from the clients
                 received = disReader.readUTF(); 
+                System.out.println(received);
 
                 // break the string into message and recipient part 
                 StringTokenizer st = new StringTokenizer(received, ":");
