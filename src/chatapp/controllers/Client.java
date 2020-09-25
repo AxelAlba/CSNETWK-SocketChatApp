@@ -1,24 +1,22 @@
 package chatapp.controllers;
 
 
+import chatapp.Constants;
 import chatapp.repositories.ClientRepository;
 import chatapp.repositories.ControllerInstance;
+import chatapp.repositories.FileRepository;
 import chatapp.repositories.MessageRepository;
 import javafx.application.Platform;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.EOFException;
-import java.io.IOException;
+import javax.naming.ldap.Control;
+import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Client {
     private final String mUsername;
+    private String mFilePath;
     private DataInputStream mReader;
     private DataOutputStream mWriter;
     private final Socket mClientEndpoint;
@@ -43,15 +41,97 @@ public class Client {
     }
 
     public void initialize() {
-        checkUsernameThread().start();
-    }
+//        checkUsernameThread().start();
+        try {
+            System.out.println("Successfully connected to server at " + mClientEndpoint.getRemoteSocketAddress());
+            mWriter.writeUTF(mUsername); // Signals the server to send the client list
 
+            // Perform handling of accept/reject here
+            String serverCheck = mReader.readUTF();
+            if (serverCheck.equals("-rejectUsername")) {
+                ClientRepository.rejectClient();
+            } else if (serverCheck.equals("-acceptUsername")) {
+                waitThread.start(); // Proceed to the waiting room
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     public void stopAllThreads() {
         running.set(false);
     }
 
     public String getUsername() { return mUsername; }
+
+    private String getCommandFromMessage(String message) {
+        String command = "";
+        StringTokenizer st = new StringTokenizer(message, " ");
+        if (st.countTokens() >= 2)
+            command = message.substring(0, message.indexOf(' '));
+
+        return command;
+    }
+
+    private void sendFile(String message) {
+        try {
+            mFilePath = message.substring(message.indexOf(' ') + 1);
+            FileInputStream fileInput = new FileInputStream(mFilePath);
+            BufferedInputStream bis = new BufferedInputStream(fileInput);
+            int bytes = (int) fileInput.getChannel().size();
+
+            String extension = mFilePath.substring(mFilePath.lastIndexOf('.') + 1);
+            String fileSendMessage =
+                String.format("%s:-sendFile:%d:%s ", mUsername, bytes, extension);
+
+            System.out.println(fileSendMessage);
+
+            // Send signal to server
+            mWriter.writeUTF(fileSendMessage);
+
+            // Chunk the bytes then send to server
+            byte[] b = new byte[1500]; // maximum packet size for TCP: 1500 bytes
+            int bytesRead;
+            while ((bytesRead = bis.read(b)) > 0)
+                mWriter.write(b, 0, bytesRead);
+
+            bis.close();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void receiveFile(String path, String extension, int bytes) throws IOException {
+        StringBuilder fileContent = new StringBuilder();
+
+        // Get the chunks of bytes from the server
+        byte[] b = new byte[1500];
+        int bytesRead = 0;
+        int totalBytes = 0;
+        while (totalBytes < bytes) {
+            bytesRead = mReader.read(b);
+            String converted = new String(b);
+            fileContent.append(converted);
+            totalBytes += bytesRead;
+        }
+
+        System.out.println("(Server: " + "received" + "." + extension + " downloaded)");
+
+        // Create file message item in chat controller
+        Platform.runLater(() -> {
+            ControllerInstance
+                    .getChatController()
+                    .createMessageItem(Constants.FILE, Constants.RECEIVE, mFilePath);
+
+            // Save the file to client application
+            System.out.println("File Content - Client.java" + fileContent.toString());
+            FileRepository.setFileContent(fileContent.toString());
+        });
+    }
+
+    private void sendText(String message) throws IOException {
+        mWriter.writeUTF(mUsername + ":" + message);
+    }
 
     private Thread sendMessage() {
         MessageRepository.initialize();
@@ -64,7 +144,15 @@ public class Client {
                     if (MessageRepository.getMessageCount() > 0) {
                         try {
                             String message = MessageRepository.getLastMessage();
-                            mWriter.writeUTF(mUsername + ":" + message);
+                            System.out.println("Last message: " + message);
+                            String command = getCommandFromMessage(message);
+
+                            if (command.equals("-sendFile")) {
+                                System.out.println("Enter -sendFile of send Thread");
+                                sendFile(message);
+                            } else {
+                                sendText(message);
+                            }
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -81,16 +169,37 @@ public class Client {
             while (running.get()) {
                 while (!MessageRepository.getLastMessage().equals("-logout")) {
                     try {
+                        // Tokenize the message
                         String message = mReader.readUTF();
+                        StringTokenizer st = new StringTokenizer(message, ":");
+                        String username = st.nextToken();
+                        String command = (st.countTokens() >= 1) ?
+                                st.nextToken() :
+                                "";
 
-                        if (message.equals(otherClient + ":-disconnect")) {
+                        System.out.println("read thread message:" + message);
+                        System.out.println("Command: " + command);
+
+                        if (command.equals("-disconnect")) {
                             Platform.runLater(() ->
                                     ControllerInstance.getChatController().onPartnerDisconnect());
-                        } else if (message.equals(otherClient + ":-reconnect")) {
+                        }
+
+                        else if (command.equals("-reconnect")) {
                             Platform.runLater(() ->
                                     ControllerInstance.getChatController().onPartnerReconnect());
-                        } else {
-                            if (!message.equals(otherClient + ":-ownReconnect"))
+                        }
+
+                        else if (command.equals("-sendFile")) {
+                            int bytes = Integer.parseInt(st.nextToken());
+                            String extension = st.nextToken();
+                            System.out.println("(Server: '" + username + "' is sending you a " + extension + " file)");
+
+                            receiveFile(mFilePath, extension, bytes);
+                        }
+
+                        else { // Receive a text message
+                            if (!command.equals("-ownReconnect"))
                                 Platform.runLater(() ->
                                         ControllerInstance.getChatController().receiveMessage(message));
                         }

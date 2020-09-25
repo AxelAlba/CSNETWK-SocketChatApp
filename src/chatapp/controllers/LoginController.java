@@ -28,11 +28,11 @@ public class LoginController {
     HBox hbUsername, hbIP, hbPort;
 
     private Client client;
-    private String previousUsername = "";
 
     @FXML
     public void login() throws Exception {
-        boolean isPortOpen = true;
+        boolean isPortOpen = true,
+                isClientAccepted = true;;
         String username = fUsername.getText();
         String ip = fIPAddress.getText();
         String port = fPort.getText();
@@ -42,13 +42,12 @@ public class LoginController {
 
             try {
                 // For logging in
-                client = new Client(username, ip, portNum);
+                Client client = new Client(username, ip, portNum);
                 client.initialize();
-                
                 if (ClientRepository.isClientRejected()) {
                     createErrorMessage(hbUsername, lblUsername, "  That username is already taken.");
+                    isClientAccepted = false;
                 } else { // Add the client to local client list
-                    System.out.println("Accepted");
                     ClientRepository.addClient(client.getUsername());
                     ClientRepository.setThisClient(client); // To refer to "this" client
                 }
@@ -60,7 +59,7 @@ public class LoginController {
             }
 
             // Proceed to chat screen
-            boolean canProceedToChat = isPortOpen && !ClientRepository.isClientRejected();
+            boolean canProceedToChat = isPortOpen && isClientAccepted;
             if (canProceedToChat) {
                 ChatController c = (ChatController) Main.changeScene("views/chat.fxml");
                 ControllerInstance.setChatController(c);

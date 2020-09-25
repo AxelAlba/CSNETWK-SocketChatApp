@@ -3,11 +3,14 @@ package chatapp.controllers;
 import chatapp.Constants;
 import chatapp.Main;
 import chatapp.repositories.ClientRepository;
+import chatapp.repositories.FileRepository;
 import chatapp.repositories.MessageRepository;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.control.OverrunStyle;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -17,7 +20,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
-import java.io.File;
+import java.io.*;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -62,6 +65,13 @@ public class ChatController implements Initializable {
         Stage stage = Main.getPrimaryStage();
         File file = fc.showOpenDialog(stage);
         createMessageItem(Constants.FILE, Constants.SEND, String.valueOf(file));
+
+        String path = String.valueOf(file);
+        String fileSendMessage = String.format("-sendFile %s", path); // ex: -sendFile file.txt
+
+        // Send this to server
+        MessageRepository.addMessage(fileSendMessage);
+//        System.out.println("Last message: " + MessageRepository.getLastMessage());
     }
 
     @FXML
@@ -114,15 +124,30 @@ public class ChatController implements Initializable {
         btnDownload.setOnMouseClicked(e -> imageFile.downloadImage());
     }
 
-    private void downloadFile() {
+    private void downloadFile()  {
         FileChooser fc = new FileChooser();
-        fc.setTitle("Download File");
+        fc.setTitle("Save File");
         fc.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("All Files", "*.docx", "*.pdf", "*.txt")
+                new FileChooser.ExtensionFilter("Text Files", "*.txt")
         );
 
         File savedFile = fc.showSaveDialog(Main.getPrimaryStage());
         String path = savedFile.getPath();
+
+        System.out.println("Path: " + path);
+
+
+        // Write file locally
+        String fileContent = FileRepository.getFileContent();
+        System.out.println(fileContent);
+
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(path));
+            writer.write(fileContent);
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void createMessageItem(int messageType, int action, String data) {
@@ -171,17 +196,37 @@ public class ChatController implements Initializable {
     }
 
     private Node createFileMessageItem(String path, int action) {
-        File file = new File(path);
-        String filename = file.getName();
+        String filename = "File Object";
+
+        if (action == Constants.SEND) {
+            File file = new File(path);
+            filename = file.getName();
+        }
 
         HBox container = new HBox();
-        Label messageItem = (Label) createTextMessageItem(filename, action);
-        ImageView icon = new ImageView(new Image(String.valueOf(getClass().getResource("../assets/download_alt.png"))));
+        Label fileMessage = new Label(filename);
+        Label space = new Label("   ");
 
-        messageItem.setUnderline(true);
+        String mPath = (String.valueOf(getClass().getResource("../assets/download_alt.png")));
+        ImageObject iconObj = new ImageObject(mPath, 20.0, 20.0);
+        ImageView icon = iconObj.getImageView();
+
+        icon.getStyleClass().add("icon");
+
+        fileMessage.setUnderline(true);
+        fileMessage.getStyleClass().add("text-white");
+        fileMessage.setTextOverrun(OverrunStyle.ELLIPSIS);
+
+        container.setAlignment(Pos.CENTER);
         container.getChildren().add(icon);
-        container.getChildren().add(messageItem);
-        container.getStyleClass().add("message-box");
+        container.getChildren().add(space);
+        container.getChildren().add(fileMessage);
+
+        if (action == Constants.SEND)
+            container.getStyleClass().addAll( "file-message-box", "message-box-self", "cursor-hand");
+        else if (action == Constants.RECEIVE)
+            container.getStyleClass().addAll( "file-message-box", "message-box-other", "cursor-hand");
+
         container.setOnMouseClicked(e -> downloadFile());
 
         return container;

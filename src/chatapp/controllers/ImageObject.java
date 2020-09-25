@@ -35,6 +35,17 @@ public class ImageObject {
             setRoundCorners(50);
     }
 
+    public ImageObject(String path, double height, double width) {
+        mHeight = height;
+        mWidth = width;
+
+        Image image = new Image(path);
+        mImageView = new ImageView(image);
+
+        mImageView.setFitHeight(height);
+        mImageView.setFitWidth(width);
+    }
+
     public ImageObject(ImageView imageView) {
         mImageView = imageView;
     }
