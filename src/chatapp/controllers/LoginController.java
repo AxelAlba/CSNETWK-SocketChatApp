@@ -26,8 +26,8 @@ public class LoginController {
     @FXML
     HBox hbUsername, hbIP, hbPort;
 
-    @FXML
-    public void login() throws Exception {
+
+    public void login__ARCHIVED() throws Exception {
         boolean isPortOpen = true, isReconnecting = false;
 
         String username = fUsername.getText();
@@ -83,6 +83,57 @@ public class LoginController {
             if (!isValidPort(port)) {
                 createErrorMessage(hbPort, lblPort,"  Please enter a valid port number.");
             }
+        }
+    }
+
+    @FXML
+    public void login() throws Exception {
+        boolean isPortOpen = true,
+                isReconnecting = false,
+                isClientAccepted = true;
+        String username = fUsername.getText();
+        String ip = fIPAddress.getText();
+        String port = fPort.getText();
+
+        if (isValidLogin()) {
+            int portNum = Integer.parseInt(port);
+
+            try {
+                // For logging in
+                Client client = new Client(username, ip, portNum);
+                client.initialize();
+                if (ClientRepository.isClientRejected()) {
+                    createErrorMessage(hbUsername, lblUsername, "  That username is already taken.");
+                    isClientAccepted = false;
+                } else { // Add the client to local client list
+                    ClientRepository.addClient(client.getUsername());
+                    ClientRepository.setThisClient(client); // To refer to "this" client
+                }
+            } catch (ConnectException e) {
+                System.out.println("Connection refused: Server not started.");
+                isPortOpen = false;
+                createErrorMessage(hbIP, lblIP, "  Please check your IP");
+                createErrorMessage(hbPort, lblPort, "  Please check if your port is open.");
+            }
+
+
+            boolean canProceedToChat = isPortOpen && isClientAccepted;
+            if (canProceedToChat) {
+                ChatController c = (ChatController) Main.changeScene("views/chat.fxml");
+                ControllerInstance.setChatController(c);
+            }
+        }
+
+        // Generate error messages for malformed inputs
+        else {
+            if (!isValidUsername(username))
+                createErrorMessage(hbUsername, lblUsername, "  Please enter a username.");
+
+            if (!isValidIP(ip))
+                createErrorMessage(hbIP, lblIP,"  Please enter a valid IP Address.");
+
+            if (!isValidPort(port))
+                createErrorMessage(hbPort, lblPort,"  Please enter a valid port number.");
         }
     }
 

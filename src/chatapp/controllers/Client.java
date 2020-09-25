@@ -32,6 +32,9 @@ public class Client {
         mClientEndpoint = new Socket(host, serverPort);
         mReader = new DataInputStream(mClientEndpoint.getInputStream());
         mWriter = new DataOutputStream(mClientEndpoint.getOutputStream());
+        waitThread = waitThread();
+        sendMessage = sendMessage();
+        readMessage = readMessage();
     }
 
     public void initialize() {
@@ -39,11 +42,14 @@ public class Client {
             System.out.println("Successfully connected to server at " + mClientEndpoint.getRemoteSocketAddress());
             mWriter.writeUTF(mUsername); // Signals the server to send the client list
 
-            waitThread = waitThread();
-            sendMessage = sendMessage();
-            readMessage = readMessage();
-
-            waitThread.start();
+            // Perform handling of accept/reject here
+            String serverCheck = mReader.readUTF();
+            if (serverCheck.equals("-rejectUsername")) {
+                ClientRepository.rejectClient();
+            } else if (serverCheck.equals("-acceptUsername")) {
+                System.out.println(serverCheck);
+                waitThread.start(); // Proceed to the waiting room
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -104,8 +110,7 @@ public class Client {
             while (ClientRepository.getClientList().size() < 2) {
                 try {
                     String client = mReader.readUTF();
-                    if (!ClientRepository.getClientList().contains(client))
-                        ClientRepository.addClient(client);
+                    ClientRepository.addClient(client);
                 } catch (IOException e) {
                     e.printStackTrace();
                     break;
