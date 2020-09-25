@@ -109,6 +109,13 @@ public class LoginController {
                     ClientRepository.addClient(client.getUsername());
                     ClientRepository.setThisClient(client); // To refer to "this" client
                 }
+
+
+                System.out.println("Clients:");
+                for (String c : ClientRepository.getClientList())
+                    System.out.println(c);
+
+
             } catch (ConnectException e) {
                 System.out.println("Connection refused: Server not started.");
                 isPortOpen = false;
@@ -116,7 +123,7 @@ public class LoginController {
                 createErrorMessage(hbPort, lblPort, "  Please check if your port is open.");
             }
 
-
+            // Proceed to chat screen
             boolean canProceedToChat = isPortOpen && isClientAccepted;
             if (canProceedToChat) {
                 ChatController c = (ChatController) Main.changeScene("views/chat.fxml");

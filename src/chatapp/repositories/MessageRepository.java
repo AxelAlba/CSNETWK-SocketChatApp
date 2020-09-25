@@ -9,17 +9,23 @@ import java.util.ArrayList;
 public class MessageRepository {
     private static volatile boolean messageAdded = false;
 
-    private static final ArrayList<String> messageList = new ArrayList<>();
-    private static final ObservableList<String> observableMessageList = FXCollections.observableList(messageList);
+    private static ArrayList<String> messageList;
+    private static ObservableList<String> observableMessageList;
 
     public static synchronized void initialize() {
+        messageList = new ArrayList<>();
+        observableMessageList = FXCollections.observableList(messageList);
         observableMessageList.addListener((ListChangeListener) change -> messageAdded = true);
     }
 
     public static synchronized String getLastMessage() {
         return (messageList.size() > 0) ?
-            messageList.get(observableMessageList.size() - 1) :
+            messageList.get(messageList.size() - 1) :
             "";
+    }
+
+    public static synchronized void clearMessages() {
+        observableMessageList = null;
     }
 
     public static synchronized void addMessage(String message) {

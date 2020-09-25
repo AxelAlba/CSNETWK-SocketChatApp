@@ -35,6 +35,8 @@ public class Main extends Application {
             }
 
             ClientRepository.clearClients();
+            ClientRepository.resetThisClient();
+            MessageRepository.clearMessages();
 
             Platform.exit();
             System.exit(0);

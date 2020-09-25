@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Client {
     private final String mUsername;
@@ -22,8 +23,8 @@ public class Client {
     private DataOutputStream mWriter;
     private final Socket mClientEndpoint;
     private Thread sendMessage, readMessage, waitThread;
+    private AtomicBoolean running;
 
-    private List<String> mClientList = new ArrayList<>();
     private String otherClient;
 
 
@@ -35,6 +36,8 @@ public class Client {
         waitThread = waitThread();
         sendMessage = sendMessage();
         readMessage = readMessage();
+
+        running = new AtomicBoolean(true);
     }
 
     public void initialize() {
@@ -47,7 +50,6 @@ public class Client {
             if (serverCheck.equals("-rejectUsername")) {
                 ClientRepository.rejectClient();
             } else if (serverCheck.equals("-acceptUsername")) {
-                System.out.println(serverCheck);
                 waitThread.start(); // Proceed to the waiting room
             }
         } catch (Exception e) {
@@ -55,23 +57,30 @@ public class Client {
         }
     }
 
+    public void stopAllThreads() {
+        running.set(false);
+    }
+
     public String getUsername() { return mUsername; }
 
     private Thread sendMessage() {
         MessageRepository.initialize();
+
         return new Thread(() -> {
             System.out.println("Send Message: start");
-            while (!MessageRepository.getLastMessage().equals("-logout")) {
-                while (!MessageRepository.isChanged());
-                if (MessageRepository.getMessageCount() > 0) {
-                    try {
-                        String message = MessageRepository.getLastMessage();
-                        mWriter.writeUTF(mUsername + ":" + message);
-                    } catch (IOException e) {
-                        e.printStackTrace();
+            while (running.get()) {
+                while (!MessageRepository.getLastMessage().equals("-logout")) {
+                    while (!MessageRepository.isChanged());
+                    if (MessageRepository.getMessageCount() > 0) {
+                        try {
+                            String message = MessageRepository.getLastMessage();
+                            mWriter.writeUTF(mUsername + ":" + message);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
+                    MessageRepository.setNoChange();
                 }
-                MessageRepository.setNoChange();
             }
         });
     }
@@ -79,24 +88,26 @@ public class Client {
     private Thread readMessage() {
         return new Thread(() -> {
             System.out.println("read Message: start");
-            while (!MessageRepository.getLastMessage().equals("-logout")) {
-                try {
-                    String message = mReader.readUTF();
+            while (running.get()) {
+                while (!MessageRepository.getLastMessage().equals("-logout")) {
+                    try {
+                        String message = mReader.readUTF();
 
-                    if (message.equals(otherClient + ":-disconnect")) {
-                        Platform.runLater(() ->
-                                ControllerInstance.getChatController().onPartnerDisconnect());
-                    } else if (message.equals(otherClient + ":-reconnect")) {
-                        Platform.runLater(() ->
-                                ControllerInstance.getChatController().onPartnerReconnect());
-                    } else {
-                        Platform.runLater(() ->
-                                ControllerInstance.getChatController().receiveMessage(message));
+                        if (message.equals(otherClient + ":-disconnect")) {
+                            Platform.runLater(() ->
+                                    ControllerInstance.getChatController().onPartnerDisconnect());
+                        } else if (message.equals(otherClient + ":-reconnect")) {
+                            Platform.runLater(() ->
+                                    ControllerInstance.getChatController().onPartnerReconnect());
+                        } else {
+                            Platform.runLater(() ->
+                                    ControllerInstance.getChatController().receiveMessage(message));
+                        }
+                    } catch (EOFException eof) {
+                        break;
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                } catch (EOFException eof) {
-                    break;
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
             }
         });
@@ -110,9 +121,9 @@ public class Client {
             while (ClientRepository.getClientList().size() < 2) {
                 try {
                     String client = mReader.readUTF();
-                    ClientRepository.addClient(client);
+                    if (!ClientRepository.containsClient(client))
+                        ClientRepository.addClient(client);
                 } catch (IOException e) {
-                    e.printStackTrace();
                     break;
                 }
             }
@@ -132,11 +143,5 @@ public class Client {
             sendMessage.start();
             readMessage.start();
         });
-    }
-
-    public void stopAllThreads() {
-        waitThread = null;
-        sendMessage = null;
-        readMessage = null;
     }
 }

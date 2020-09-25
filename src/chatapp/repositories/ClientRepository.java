@@ -60,6 +60,9 @@ public class ClientRepository {
         return thisClient;
     }
 
+    public static void resetThisClient() {
+        thisClient = null;
+    }
 
 
     public static boolean isClientRejected() {

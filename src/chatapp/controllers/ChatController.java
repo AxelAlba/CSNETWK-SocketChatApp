@@ -46,6 +46,8 @@ public class ChatController implements Initializable {
             MessageRepository.addMessage(messageText);
             chatInput.clear();
         }
+
+        System.out.println("ChatController: " + MessageRepository.getLastMessage());
     }
 
     @FXML
@@ -67,8 +69,12 @@ public class ChatController implements Initializable {
     @FXML
     private void logout() throws Exception {
         MessageRepository.addMessage("-logout");
-        Client thisClient = ClientRepository.getThisClient();
-        thisClient.stopAllThreads();
+        ClientRepository.getThisClient().stopAllThreads();
+
+        // Clear all repositories to simulate application exit
+        ClientRepository.clearClients();
+        ClientRepository.resetThisClient();
+        MessageRepository.clearMessages();
 
         Main.changeScene("views/login.fxml");
     }
