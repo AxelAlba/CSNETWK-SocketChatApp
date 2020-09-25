@@ -3,6 +3,7 @@ package chatapp.controllers;
 import chatapp.Main;
 import chatapp.repositories.ClientRepository;
 import chatapp.repositories.ControllerInstance;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -26,71 +27,12 @@ public class LoginController {
     @FXML
     HBox hbUsername, hbIP, hbPort;
 
-
-    public void login__ARCHIVED() throws Exception {
-        boolean isPortOpen = true, isReconnecting = false;
-
-        String username = fUsername.getText();
-        String ip = fIPAddress.getText();
-        String port = fPort.getText();
-
-        if (isValidLogin()) {
-            int portNum = Integer.parseInt(port);
-
-            try {
-                if (!ClientRepository.isFull()) { // 1st time login or login from closed window
-                    Client client = new Client(username, ip, portNum);
-                    ClientRepository.addClient(client.getUsername());
-                    ClientRepository.setThisClient(client);
-                    client.initialize();
-                } else { // Client repository is full
-                    if (ClientRepository.containsClient(username)) {
-                        Client client = new Client(username, ip, portNum);
-                        client.initialize();
-
-                        ChatController c = (ChatController) Main.changeScene("views/chat.fxml");
-
-                        String otherName = ClientRepository.getClientList().get(0).equals(username) ?
-                                ClientRepository.getClientList().get(1) :
-                                ClientRepository.getClientList().get(0);
-
-                        c.showChat(otherName);
-                        isReconnecting = true;
-                    } else {
-                        createErrorMessage(hbUsername, lblUsername, "  Chat room is full.");
-                    }
-                }
-            } catch (ConnectException e) {
-                System.out.println("Connection refused: Server not started.");
-                isPortOpen = false;
-                createErrorMessage(hbIP, lblIP, "  Please check your IP");
-                createErrorMessage(hbPort, lblPort, "  Please check if your port is open.");
-            }
-
-            if (isPortOpen && !isReconnecting) {
-                ChatController c = (ChatController) Main.changeScene("views/chat.fxml");
-                ControllerInstance.setChatController(c);
-            }
-        } else {
-            if (!isValidUsername(username)) {
-                createErrorMessage(hbUsername, lblUsername, "  Please enter a username.");
-            }
-
-            if (!isValidIP(ip)) {
-                createErrorMessage(hbIP, lblIP,"  Please enter a valid IP Address.");
-            }
-
-            if (!isValidPort(port)) {
-                createErrorMessage(hbPort, lblPort,"  Please enter a valid port number.");
-            }
-        }
-    }
+    private Client client;
+    private String previousUsername = "";
 
     @FXML
     public void login() throws Exception {
-        boolean isPortOpen = true,
-                isReconnecting = false,
-                isClientAccepted = true;
+        boolean isPortOpen = true;
         String username = fUsername.getText();
         String ip = fIPAddress.getText();
         String port = fPort.getText();
@@ -100,22 +42,16 @@ public class LoginController {
 
             try {
                 // For logging in
-                Client client = new Client(username, ip, portNum);
+                client = new Client(username, ip, portNum);
                 client.initialize();
+                
                 if (ClientRepository.isClientRejected()) {
                     createErrorMessage(hbUsername, lblUsername, "  That username is already taken.");
-                    isClientAccepted = false;
                 } else { // Add the client to local client list
+                    System.out.println("Accepted");
                     ClientRepository.addClient(client.getUsername());
                     ClientRepository.setThisClient(client); // To refer to "this" client
                 }
-
-
-                System.out.println("Clients:");
-                for (String c : ClientRepository.getClientList())
-                    System.out.println(c);
-
-
             } catch (ConnectException e) {
                 System.out.println("Connection refused: Server not started.");
                 isPortOpen = false;
@@ -124,7 +60,7 @@ public class LoginController {
             }
 
             // Proceed to chat screen
-            boolean canProceedToChat = isPortOpen && isClientAccepted;
+            boolean canProceedToChat = isPortOpen && !ClientRepository.isClientRejected();
             if (canProceedToChat) {
                 ChatController c = (ChatController) Main.changeScene("views/chat.fxml");
                 ControllerInstance.setChatController(c);

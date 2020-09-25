@@ -27,7 +27,6 @@ public class ClientRepository {
     }
 
 
-
     public static synchronized ObservableList<String> getClientList() {
         return observableClientList;
     }
@@ -52,24 +51,28 @@ public class ClientRepository {
 
 
 
-    public static void setThisClient(Client client) {
+    public static synchronized void setThisClient(Client client) {
         thisClient = client;
     }
 
-    public static Client getThisClient() {
+    public static synchronized Client getThisClient() {
         return thisClient;
     }
 
-    public static void resetThisClient() {
+    public static synchronized void resetThisClient() {
         thisClient = null;
     }
 
 
-    public static boolean isClientRejected() {
+    public static synchronized boolean isClientRejected() {
         return isClientRejected;
     }
 
-    public static void rejectClient() {
+    public static synchronized void acceptClient() {
+        isClientRejected = false;
+    }
+
+    public static synchronized void rejectClient() {
         isClientRejected = true;
     }
 }

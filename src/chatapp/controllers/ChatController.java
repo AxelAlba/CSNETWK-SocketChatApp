@@ -46,8 +46,6 @@ public class ChatController implements Initializable {
             MessageRepository.addMessage(messageText);
             chatInput.clear();
         }
-
-        System.out.println("ChatController: " + MessageRepository.getLastMessage());
     }
 
     @FXML

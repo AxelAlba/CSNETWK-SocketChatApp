@@ -27,6 +27,7 @@ public class Main extends Application {
         mPrimaryStage.setScene(scene);
         mPrimaryStage.setResizable(false);
         mPrimaryStage.show();
+
         mPrimaryStage.setOnCloseRequest(e -> {
             Client thisClient = ClientRepository.getThisClient();
             if (thisClient != null) {

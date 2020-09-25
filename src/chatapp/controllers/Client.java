@@ -22,7 +22,7 @@ public class Client {
     private DataInputStream mReader;
     private DataOutputStream mWriter;
     private final Socket mClientEndpoint;
-    private Thread sendMessage, readMessage, waitThread;
+    private Thread sendMessage, readMessage, waitThread, checkUsernameThread;
     private AtomicBoolean running;
 
     private String otherClient;
@@ -33,29 +33,19 @@ public class Client {
         mClientEndpoint = new Socket(host, serverPort);
         mReader = new DataInputStream(mClientEndpoint.getInputStream());
         mWriter = new DataOutputStream(mClientEndpoint.getOutputStream());
+
         waitThread = waitThread();
         sendMessage = sendMessage();
         readMessage = readMessage();
+        checkUsernameThread = checkUsernameThread();
 
         running = new AtomicBoolean(true);
     }
 
     public void initialize() {
-        try {
-            System.out.println("Successfully connected to server at " + mClientEndpoint.getRemoteSocketAddress());
-            mWriter.writeUTF(mUsername); // Signals the server to send the client list
-
-            // Perform handling of accept/reject here
-            String serverCheck = mReader.readUTF();
-            if (serverCheck.equals("-rejectUsername")) {
-                ClientRepository.rejectClient();
-            } else if (serverCheck.equals("-acceptUsername")) {
-                waitThread.start(); // Proceed to the waiting room
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        checkUsernameThread().start();
     }
+
 
     public void stopAllThreads() {
         running.set(false);
@@ -100,8 +90,9 @@ public class Client {
                             Platform.runLater(() ->
                                     ControllerInstance.getChatController().onPartnerReconnect());
                         } else {
-                            Platform.runLater(() ->
-                                    ControllerInstance.getChatController().receiveMessage(message));
+                            if (!message.equals(otherClient + ":-ownReconnect"))
+                                Platform.runLater(() ->
+                                        ControllerInstance.getChatController().receiveMessage(message));
                         }
                     } catch (EOFException eof) {
                         break;
@@ -142,6 +133,33 @@ public class Client {
             // Start the send and read threads
             sendMessage.start();
             readMessage.start();
+        });
+    }
+
+    private Thread checkUsernameThread() {
+        return new Thread(() -> {
+            while (running.get()) {
+                try {
+                    // Send the username to the server
+                    mWriter.writeUTF(mUsername);
+
+                    // Let server check the sent username
+                    String serverCheck = mReader.readUTF(); // this is not being triggered
+
+                    if (serverCheck.equals("-acceptUsername")) {
+                        System.out.println("Successfully connected to server at " + mClientEndpoint.getRemoteSocketAddress());
+                        Platform.runLater(() ->
+                                ClientRepository.acceptClient());
+                        running.set(false);
+                    } else if (serverCheck.equals("-rejectUsername")) {
+                        Platform.runLater(() ->
+                                ClientRepository.rejectClient());
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            Platform.runLater(() -> waitThread.start());
         });
     }
 }
