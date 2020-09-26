@@ -58,8 +58,8 @@ public class Main extends Application {
     }
 
     public static void logout() {
-        if (MessageRepository.getMessageList() != null)
-            MessageRepository.addMessage("-logout");
+        MessageRepository.addMessage("-logout");
+        System.out.println("Main.logout() Last message: " + MessageRepository.getLastMessage());
 
         Client thisClient = ClientRepository.getThisClient();
         if (thisClient != null) {
@@ -67,7 +67,7 @@ public class Main extends Application {
         }
 
         ClientRepository.clearClients();
-//        ClientRepository.resetThisClient(); TODO:  COME BACK TO UNCOMMENT
+        ClientRepository.resetThisClient();
         MessageRepository.clearMessages();
     }
 

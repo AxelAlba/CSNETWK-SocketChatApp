@@ -71,8 +71,6 @@ public class ChatController implements Initializable {
     @FXML
     private void logout() throws Exception {
         Main.logout();
-        // Main.changeScene("views/login.fxml"); TODO: RETURN TO THIS
-
         LoginController c = (LoginController) Main.changeScene("views/login.fxml");
         LoginControllerInstance.setLoginController(c);
     }

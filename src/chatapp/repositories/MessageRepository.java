@@ -29,7 +29,7 @@ public class MessageRepository {
     }
 
     public static synchronized void clearMessages() {
-        observableMessageList = null;
+        initialize();
     }
 
     public static synchronized void addMessage(String message) {

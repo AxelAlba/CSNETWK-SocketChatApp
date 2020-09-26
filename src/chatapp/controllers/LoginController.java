@@ -3,6 +3,7 @@ package chatapp.controllers;
 import chatapp.Main;
 import chatapp.repositories.ClientRepository;
 import chatapp.repositories.ControllerInstance;
+import chatapp.repositories.MessageRepository;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -40,10 +41,7 @@ public class LoginController {
 
             try {
                 System.out.println("LoginController: Enter login()");
-//                if (client == null) // for initial logins TODO: Return this
-
                 client = new Client(username, ip, portNum);
-                client.setUsername(username);
                 client.initialize();
             } catch (ConnectException e) {
                 System.out.println("Connection refused: Server not started.");

@@ -18,9 +18,9 @@ public class Client {
     private final DataInputStream mReader;
     private final DataOutputStream mWriter;
     private final Socket mClientEndpoint;
-    private final Thread sendMessage;
-    private final Thread readMessage;
-    private final Thread waitThread;
+    private Thread sendMessage;
+    private Thread readMessage;
+    private Thread waitThread;
     private final AtomicBoolean running;
 
     private String otherClient;
@@ -44,7 +44,10 @@ public class Client {
     }
 
     public void stopAllThreads() {
-        running.set(false);
+//        running.set(false);
+        waitThread = null;
+        sendMessage = null;
+        readMessage = null;
     }
 
     public String getUsername() { return mUsername; }
@@ -154,10 +157,10 @@ public class Client {
             System.out.println("Client: enter check username thread");
             try {
                 // Send the username to the server
-                mWriter.writeUTF(mUsername); // keeps writing because object has not been destructed
+                mWriter.writeUTF(mUsername);
 
                 // Let server check the sent username
-                String serverCheck = mReader.readUTF(); // cannot read the 2nd time
+                String serverCheck = mReader.readUTF();
 
                 System.out.println("Server: " + serverCheck);
 
@@ -165,6 +168,8 @@ public class Client {
                     System.out.println("Successfully connected to server at " +
                             mClientEndpoint.getRemoteSocketAddress());
 
+                    // For checking duplicate username when other user is in
+                    // the chat room
                     serverCheck = mReader.readUTF(); // Await the -full message
                     String[] serverTokens = serverCheck.split(":");
                     serverCheck = serverTokens.length > 1 ?
@@ -174,11 +179,12 @@ public class Client {
                     System.out.println("Server inside: " + serverCheck);
 
                     if (serverCheck.equals("-full")) {
-                        System.out.println("Username Thread: Rejected username - full end");
+                        System.out.println("Username Thread: Rejected username - other user in room");
                         Platform.runLater(() -> LoginControllerInstance
                                 .getLoginController()
                                 .rejectClient());
                     } else {
+                        System.out.println("Username Thread: Accepted username");
                         Platform.runLater(() -> {
                             LoginControllerInstance
                                     .getLoginController()
@@ -188,15 +194,18 @@ public class Client {
                     }
                 }
 
+                // For checking duplicate username when the other user is in
+                // the matching room
                 else if (serverCheck.equals("-rejectUsername")) {
-                    System.out.println("Username Thread: Rejected username - duplicate");
+                    System.out.println("Username Thread: Rejected username - other user in matching");
                     Platform.runLater(() -> LoginControllerInstance
                             .getLoginController()
                             .rejectClient());
                 }
 
+                // For checking third username when room is already full
                 else if (serverCheck.equals("-full")) {
-                    System.out.println("Username Thread: Rejected username - initially full");
+                    System.out.println("Username Thread: Rejected username - foreign user");
                     Platform.runLater(() -> LoginControllerInstance
                             .getLoginController()
                             .rejectClient());
@@ -263,12 +272,14 @@ public class Client {
 
         return new Thread(() -> {
             System.out.println("Send Message: start");
-            while (running.get()) {
+//            while (running.get()) {
                 while (!MessageRepository.getLastMessage().equals("-logout")) {
                     while (!MessageRepository.isChanged());
+
                     if (MessageRepository.getMessageCount() > 0) {
                         try {
                             String message = MessageRepository.getLastMessage();
+                            System.out.println("Send thread: " + message);
                             String command = getCommandFromMessage(message);
 
                             if (command.equals("-sendFile")) {
@@ -282,7 +293,7 @@ public class Client {
                     }
                     MessageRepository.setNoChange();
                 }
-            }
+//            }
             System.out.println("Send Message: stop");
         });
     }
@@ -290,7 +301,7 @@ public class Client {
     private Thread readMessage() {
         return new Thread(() -> {
             System.out.println("Read Message: start");
-            while (running.get()) {
+//            while (running.get()) {
                 while (!MessageRepository.getLastMessage().equals("-logout")) {
                     try {
                         // Tokenize the message
@@ -331,7 +342,7 @@ public class Client {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                }
+//                }
             }
             System.out.println("Read Message: stop");
         });
