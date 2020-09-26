@@ -6,7 +6,6 @@ public class ControllerInstance {
     private static ChatController chatController = null;
 
     public static void setChatController(ChatController c) {
-//        if (chatController == null)
         chatController = c;
     }
 

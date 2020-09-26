@@ -31,8 +31,6 @@ public class LoginController {
 
     @FXML
     public void login() throws Exception {
-        boolean isPortOpen = true,
-                isClientAccepted = true;;
         String username = fUsername.getText();
         String ip = fIPAddress.getText();
         String port = fPort.getText();
@@ -41,28 +39,15 @@ public class LoginController {
             int portNum = Integer.parseInt(port);
 
             try {
-                // For logging in
-                Client client = new Client(username, ip, portNum);
+                System.out.println("LoginController: Enter login()");
+                if (client == null)
+                    client = new Client(username, ip, portNum); // username remains the same
+                client.setUsername(username);
                 client.initialize();
-                if (ClientRepository.isClientRejected()) {
-                    createErrorMessage(hbUsername, lblUsername, "  That username is already taken.");
-                    isClientAccepted = false;
-                } else { // Add the client to local client list
-                    ClientRepository.addClient(client.getUsername());
-                    ClientRepository.setThisClient(client); // To refer to "this" client
-                }
             } catch (ConnectException e) {
                 System.out.println("Connection refused: Server not started.");
-                isPortOpen = false;
                 createErrorMessage(hbIP, lblIP, "  Please check your IP");
                 createErrorMessage(hbPort, lblPort, "  Please check if your port is open.");
-            }
-
-            // Proceed to chat screen
-            boolean canProceedToChat = isPortOpen && isClientAccepted;
-            if (canProceedToChat) {
-                ChatController c = (ChatController) Main.changeScene("views/chat.fxml");
-                ControllerInstance.setChatController(c);
             }
         }
 
@@ -77,6 +62,22 @@ public class LoginController {
             if (!isValidPort(port))
                 createErrorMessage(hbPort, lblPort,"  Please enter a valid port number.");
         }
+    }
+
+    public void rejectClient() {
+        System.out.println("View thread: Rejected client");
+        createErrorMessage(hbUsername, lblUsername, "  That username is already taken.");
+    }
+
+    public void acceptClient() {
+        System.out.println("View thread: Accepted client");
+        try {
+            ClientRepository.addClient(client.getUsername());
+            ClientRepository.setThisClient(client); // To refer to "this" client
+
+            ChatController c = (ChatController) Main.changeScene("views/chat.fxml");
+            ControllerInstance.setChatController(c);
+        } catch (Exception e) {}
     }
 
     private void createErrorMessage(HBox parent, Label label, String message) {

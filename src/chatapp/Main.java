@@ -2,6 +2,7 @@ package chatapp;
 
 import chatapp.controllers.Client;
 import chatapp.repositories.ClientRepository;
+import chatapp.repositories.LoginControllerInstance;
 import chatapp.repositories.MessageRepository;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -17,11 +18,17 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception {
         mPrimaryStage = primaryStage;
 
-        Parent root = FXMLLoader.load(Main.class.getResource("views/login.fxml"));
-        Scene scene = new Scene(root, 1024, 768);
 
+        // Instantiating the login controller
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(Main.class.getResource("views/login.fxml"));
+        Parent root = loader.load();
+
+        Scene scene = new Scene(root, 1024, 768);
         scene.getStylesheets().add(Main.class.getResource("styles/styles.css").toExternalForm());
         scene.getStylesheets().add(Main.class.getResource("styles/scrollbar.css").toExternalForm());
+
+        LoginControllerInstance.setLoginController(loader.getController());
 
         mPrimaryStage.setTitle("De La Salle Usap");
         mPrimaryStage.setScene(scene);

@@ -87,7 +87,7 @@ public class ChatController implements Initializable {
 
     public void receiveMessage(String message) {
         if (message.length() > 0) {
-            if (message.split(":")[1] != null) {
+            if (message.split(":").length > 1) {
                 message = message.split(":")[1];
                 createMessageItem(Constants.TEXT, Constants.RECEIVE, message);
             }

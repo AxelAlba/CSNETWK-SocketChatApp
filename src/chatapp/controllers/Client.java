@@ -3,10 +3,7 @@ package chatapp.controllers;
 
 import chatapp.Constants;
 import chatapp.Main;
-import chatapp.repositories.ClientRepository;
-import chatapp.repositories.ControllerInstance;
-import chatapp.repositories.FileRepository;
-import chatapp.repositories.MessageRepository;
+import chatapp.repositories.*;
 import javafx.application.Platform;
 import javafx.stage.FileChooser;
 
@@ -16,13 +13,15 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Client {
-    private final String mUsername;
+    private String mUsername;
     private String mFilePath;
-    private DataInputStream mReader;
-    private DataOutputStream mWriter;
+    private final DataInputStream mReader;
+    private final DataOutputStream mWriter;
     private final Socket mClientEndpoint;
-    private Thread sendMessage, readMessage, waitThread, checkUsernameThread;
-    private AtomicBoolean running;
+    private final Thread sendMessage;
+    private final Thread readMessage;
+    private final Thread waitThread;
+    private final AtomicBoolean running;
 
     private String otherClient;
 
@@ -36,27 +35,12 @@ public class Client {
         waitThread = waitThread();
         sendMessage = sendMessage();
         readMessage = readMessage();
-        checkUsernameThread = checkUsernameThread();
 
         running = new AtomicBoolean(true);
     }
 
     public void initialize() {
-//        checkUsernameThread().start();
-        try {
-            System.out.println("Successfully connected to server at " + mClientEndpoint.getRemoteSocketAddress());
-            mWriter.writeUTF(mUsername); // Signals the server to send the client list
-
-            // Perform handling of accept/reject here
-            String serverCheck = mReader.readUTF();
-            if (serverCheck.equals("-rejectUsername")) {
-                ClientRepository.rejectClient();
-            } else if (serverCheck.equals("-acceptUsername")) {
-                waitThread.start(); // Proceed to the waiting room
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        checkUsernameThread().start();
     }
 
     public void stopAllThreads() {
@@ -64,6 +48,10 @@ public class Client {
     }
 
     public String getUsername() { return mUsername; }
+
+    public void setUsername(String username) {
+        mUsername = username;
+    }
 
     private String getCommandFromMessage(String message) {
         String command = "";
@@ -157,6 +145,81 @@ public class Client {
         mWriter.writeUTF(mUsername + ":" + message);
     }
 
+
+    /**
+     * Threads
+     */
+    private Thread checkUsernameThread() {
+        return new Thread(() -> {
+            System.out.println("Client: enter check username thread");
+            try {
+                // Send the username to the server
+                mWriter.writeUTF(mUsername); // keeps writing because object has not been destructed
+
+                // Let server check the sent username
+                String serverCheck = mReader.readUTF(); // cannot read the 2nd time
+
+                System.out.println("Server: " + serverCheck);
+
+                if (serverCheck.equals("-acceptUsername")) {
+                    System.out.println("Successfully connected to server at " +
+                            mClientEndpoint.getRemoteSocketAddress());
+
+                    Platform.runLater(() -> {
+                        LoginController c = LoginControllerInstance.getLoginController();
+                        c.acceptClient();
+                        waitThread.start();
+                    });
+                }
+                else if (serverCheck.equals("-rejectUsername")) {
+                    System.out.println("Username Thread: Rejected username");
+                    Platform.runLater(() -> {
+                        LoginController c = LoginControllerInstance.getLoginController();
+                        c.rejectClient();
+                    });
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    private Thread waitThread() {
+        return new Thread(() -> {
+            ClientRepository.initialize();
+
+            // Filling the client list
+            while (ClientRepository.getClientList().size() < 2) {
+                try {
+                    String client = mReader.readUTF();
+                    System.out.println("Wait thread: " + client);
+                    if (!ClientRepository.containsClient(client))
+                        ClientRepository.addClient(client);
+                } catch (IOException e) {
+                    break;
+                }
+            }
+
+            System.out.println("Wait thread: After loop");
+
+            // Choosing the other client
+            otherClient = (ClientRepository.getClientList().get(0).equals(mUsername)) ?
+                    ClientRepository.getClientList().get(1) :
+                    ClientRepository.getClientList().get(0);
+
+            // Show the chat pane
+            Platform.runLater(() -> {
+                ChatController controller = ControllerInstance.getChatController();
+                controller.showChat(otherClient);
+                System.out.println("App thread: Show chat");
+            });
+
+            // Start the send and read threads
+            sendMessage.start();
+            readMessage.start();
+        });
+    }
+
     private Thread sendMessage() {
         MessageRepository.initialize();
 
@@ -168,11 +231,9 @@ public class Client {
                     if (MessageRepository.getMessageCount() > 0) {
                         try {
                             String message = MessageRepository.getLastMessage();
-                            System.out.println("Last message: " + message);
                             String command = getCommandFromMessage(message);
 
                             if (command.equals("-sendFile")) {
-                                System.out.println("Enter -sendFile of send Thread");
                                 sendFile(message);
                             } else {
                                 sendText(message);
@@ -234,65 +295,6 @@ public class Client {
                     }
                 }
             }
-        });
-    }
-
-    private Thread waitThread() {
-        return new Thread(() -> {
-            ClientRepository.initialize();
-
-            // Filling the client list
-            while (ClientRepository.getClientList().size() < 2) {
-                try {
-                    String client = mReader.readUTF();
-                    if (!ClientRepository.containsClient(client))
-                        ClientRepository.addClient(client);
-                } catch (IOException e) {
-                    break;
-                }
-            }
-
-            // Choosing the other client
-            otherClient = (ClientRepository.getClientList().get(0).equals(mUsername)) ?
-                    ClientRepository.getClientList().get(1) :
-                    ClientRepository.getClientList().get(0);
-
-            // Show the chat pane
-            Platform.runLater(() -> {
-                ChatController controller = ControllerInstance.getChatController();
-                controller.showChat(otherClient);
-            });
-
-            // Start the send and read threads
-            sendMessage.start();
-            readMessage.start();
-        });
-    }
-
-    private Thread checkUsernameThread() {
-        return new Thread(() -> {
-            while (running.get()) {
-                try {
-                    // Send the username to the server
-                    mWriter.writeUTF(mUsername);
-
-                    // Let server check the sent username
-                    String serverCheck = mReader.readUTF(); // this is not being triggered
-
-                    if (serverCheck.equals("-acceptUsername")) {
-                        System.out.println("Successfully connected to server at " + mClientEndpoint.getRemoteSocketAddress());
-                        Platform.runLater(() ->
-                                ClientRepository.acceptClient());
-                        running.set(false);
-                    } else if (serverCheck.equals("-rejectUsername")) {
-                        Platform.runLater(() ->
-                                ClientRepository.rejectClient());
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            Platform.runLater(() -> waitThread.start());
         });
     }
 }
