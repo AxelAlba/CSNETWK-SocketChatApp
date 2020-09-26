@@ -11,12 +11,12 @@ public class MPServer {
     // counter for the clients
     final static int ServerPort = 1234;
     // to store the logs of the clients
-    static String logs;
+    static Vector<String> logs = new Vector<>();
     public static void main(String[] args) {
         String timeStamp = new SimpleDateFormat("yyyy.MM.dd HH.mm.ss").format(new Date());
         System.out.println("Server: Listening on port " + ServerPort + "... (" +timeStamp+")");
-        logs = "";
-        logs += "Server: Listening on port " + ServerPort + "... (" +timeStamp+")\n";
+
+        logs.add("Server: Listening on port " + ServerPort + "... (" +timeStamp+")");
 
         //For the Client hander
 		ServerSocket serverSocket;
@@ -69,7 +69,7 @@ public class MPServer {
 
                     timeStamp = new SimpleDateFormat("yyyy.MM.dd HH.mm.ss").format(new Date());
                     System.out.println("Server: '"+username+"' logged in to the server. ("+timeStamp+")"); 
-                    logs += "Server: '"+username+"' logged in to the server. ("+timeStamp+")\n";
+                    logs.add("Server: '"+username+"' logged in to the server. ("+timeStamp+")");
 
                     //adding the client to the activeClients vector of the server
                     activeClients.add(handler); 
@@ -134,7 +134,7 @@ public class MPServer {
                             }
                             timeStamp = new SimpleDateFormat("yyyy.MM.dd HH.mm.ss").format(new Date());
                             System.out.println("Server: '"+username+"' has reconnected to the server. ("+timeStamp+")"); 
-                            logs += "Server: '"+username+"' has reconnected to the server. ("+timeStamp+")\n";
+                            logs.add("Server: '"+username+"' has reconnected to the server. ("+timeStamp+")");
                             break; 
                         } 
                     } 
@@ -153,7 +153,7 @@ public class MPServer {
             timeStamp = new SimpleDateFormat("yyyy.MM.dd HH.mm.ss").format(new Date());
             System.out.println("Server: Connection terminated ("+timeStamp+")");
             //saving to logs
-            logs += "Server: Connection terminated ("+timeStamp+")\n";
+            logs.add("Server: Connection terminated ("+timeStamp+")");
 		}
 
     }
@@ -210,7 +210,7 @@ class ClientHandler implements Runnable
 
                     timeStamp = new SimpleDateFormat("yyyy.MM.dd HH.mm.ss").format(new Date());
                     System.out.println("Server: '"+this.name+"' logged out of the server. ("+timeStamp+")"); 
-                    MPServer.logs += "Server: '"+this.name+"' logged out of the server. ("+timeStamp+")\n";
+                    MPServer.logs.add("Server: '"+this.name+"' logged out of the server. ("+timeStamp+")");
 
                     // for notifying the other client for the logout
                     for (ClientHandler client : MPServer.activeClients)  { 
@@ -235,8 +235,8 @@ class ClientHandler implements Runnable
 
                                         //save to file
                                         try (PrintWriter out = new PrintWriter(answer+".txt")) {
-                                            String updatedText = MPServer.logs.replaceAll("\n", System.lineSeparator());
-                                            out.println(updatedText);
+                                            for (String log : MPServer.logs)
+                                                out.println(log);
                                         } catch (Exception e) {
                                             e.printStackTrace();
                                         }
@@ -300,7 +300,7 @@ class ClientHandler implements Runnable
 
                                 timeStamp = new SimpleDateFormat("yyyy.MM.dd HH.mm.ss").format(new Date());
                                 System.out.println("Server: "+ this.name +" sent a "+ extension +" file to " + client.name + " ("+timeStamp+")");
-                                MPServer.logs += "Server: "+ this.name +" sent a "+ extension +" file to " + client.name + " ("+timeStamp+")\n";
+                                MPServer.logs.add("Server: "+ this.name +" sent a "+ extension +" file to " + client.name + " ("+timeStamp+")");
                                 break;
                             }
 
@@ -326,7 +326,7 @@ class ClientHandler implements Runnable
                                 this.dosWriter.writeUTF(client.name+":-fileFailed:"+extension);
                                 timeStamp = new SimpleDateFormat("yyyy.MM.dd HH.mm.ss").format(new Date());
                                 System.out.println("Server: "+ this.name +" failed to send a "+ extension +" file to " + client.name + " ("+timeStamp+")");
-                                MPServer.logs += "Server: "+ this.name +" failed to send a "+ extension +" file to " + client.name + " ("+timeStamp+")\n";
+                                MPServer.logs.add("Server: "+ this.name +" failed to send a "+ extension +" file to " + client.name + " ("+timeStamp+")");
                                 break;
                             }
                         } 
@@ -345,7 +345,7 @@ class ClientHandler implements Runnable
 
                                 timeStamp = new SimpleDateFormat("yyyy.MM.dd HH.mm.ss").format(new Date());
                                 System.out.println("Server: "+this.name+" sent \""+message+"\" to " + client.name + " ("+timeStamp+")");
-                                MPServer.logs += "Server: "+this.name+" sent \""+message+"\" to " + client.name + " ("+timeStamp+")\n";
+                                MPServer.logs.add("Server: "+this.name+" sent \""+message+"\" to " + client.name + " ("+timeStamp+")");
                                 break;
                             }
 
@@ -355,7 +355,7 @@ class ClientHandler implements Runnable
 
                                 timeStamp = new SimpleDateFormat("yyyy.MM.dd HH.mm.ss").format(new Date());
                                 System.out.println("Server: "+ this.name +" failed to send \""+message+"\" to " + client.name + " ("+timeStamp+")");
-                                MPServer.logs += "Server: "+ this.name +" failed to send \""+message+"\" to " + client.name + " ("+timeStamp+")\n";
+                                MPServer.logs.add("Server: "+ this.name +" failed to send \""+message+"\" to " + client.name + " ("+timeStamp+")");
                                 break;
                             }
                         } 
