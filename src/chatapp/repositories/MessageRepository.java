@@ -18,6 +18,10 @@ public class MessageRepository {
         observableMessageList.addListener((ListChangeListener) change -> messageAdded = true);
     }
 
+    public static synchronized ObservableList<String> getMessageList() {
+        return observableMessageList;
+    }
+
     public static synchronized String getLastMessage() {
         return (messageList.size() > 0) ?
             messageList.get(messageList.size() - 1) :

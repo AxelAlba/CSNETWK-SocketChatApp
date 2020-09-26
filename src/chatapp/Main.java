@@ -1,6 +1,7 @@
 package chatapp;
 
 import chatapp.controllers.Client;
+import chatapp.controllers.LoginController;
 import chatapp.repositories.ClientRepository;
 import chatapp.repositories.LoginControllerInstance;
 import chatapp.repositories.MessageRepository;
@@ -18,8 +19,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception {
         mPrimaryStage = primaryStage;
 
-
-        // Instantiating the login controller
+        // Initialize the login controller
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(Main.class.getResource("views/login.fxml"));
         Parent root = loader.load();
@@ -30,22 +30,16 @@ public class Main extends Application {
 
         LoginControllerInstance.setLoginController(loader.getController());
 
+        // Initialize the message repository
+        MessageRepository.initialize();
+
         mPrimaryStage.setTitle("De La Salle Usap");
         mPrimaryStage.setScene(scene);
         mPrimaryStage.setResizable(false);
         mPrimaryStage.show();
 
         mPrimaryStage.setOnCloseRequest(e -> {
-            Client thisClient = ClientRepository.getThisClient();
-            if (thisClient != null) {
-                MessageRepository.addMessage("-logout");
-                thisClient.stopAllThreads();
-            }
-
-            ClientRepository.clearClients();
-            ClientRepository.resetThisClient();
-            MessageRepository.clearMessages();
-
+            logout();
             Platform.exit();
             System.exit(0);
         });
@@ -61,6 +55,20 @@ public class Main extends Application {
 
     public static Stage getPrimaryStage() {
         return mPrimaryStage;
+    }
+
+    public static void logout() {
+        if (MessageRepository.getMessageList() != null)
+            MessageRepository.addMessage("-logout");
+
+        Client thisClient = ClientRepository.getThisClient();
+        if (thisClient != null) {
+            thisClient.stopAllThreads();
+        }
+
+        ClientRepository.clearClients();
+//        ClientRepository.resetThisClient(); TODO:  COME BACK TO UNCOMMENT
+        MessageRepository.clearMessages();
     }
 
     public static void main(String[] args) {

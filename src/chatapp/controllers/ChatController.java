@@ -4,6 +4,7 @@ import chatapp.Constants;
 import chatapp.Main;
 import chatapp.repositories.ClientRepository;
 import chatapp.repositories.FileRepository;
+import chatapp.repositories.LoginControllerInstance;
 import chatapp.repositories.MessageRepository;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -69,15 +70,11 @@ public class ChatController implements Initializable {
 
     @FXML
     private void logout() throws Exception {
-        MessageRepository.addMessage("-logout");
-        ClientRepository.getThisClient().stopAllThreads();
+        Main.logout();
+        // Main.changeScene("views/login.fxml"); TODO: RETURN TO THIS
 
-        // Clear all repositories to simulate application exit
-        ClientRepository.clearClients();
-        ClientRepository.resetThisClient();
-        MessageRepository.clearMessages();
-
-        Main.changeScene("views/login.fxml");
+        LoginController c = (LoginController) Main.changeScene("views/login.fxml");
+        LoginControllerInstance.setLoginController(c);
     }
 
     @Override

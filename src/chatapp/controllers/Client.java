@@ -165,19 +165,43 @@ public class Client {
                     System.out.println("Successfully connected to server at " +
                             mClientEndpoint.getRemoteSocketAddress());
 
-                    Platform.runLater(() -> {
-                        LoginController c = LoginControllerInstance.getLoginController();
-                        c.acceptClient();
-                        waitThread.start();
-                    });
+                    serverCheck = mReader.readUTF(); // Await the -full message
+                    String[] serverTokens = serverCheck.split(":");
+                    serverCheck = serverTokens.length > 1 ?
+                            serverTokens[1] : // -full command
+                            serverTokens[0];
+
+                    System.out.println("Server inside: " + serverCheck);
+
+                    if (serverCheck.equals("-full")) {
+                        System.out.println("Username Thread: Rejected username - full end");
+                        Platform.runLater(() -> LoginControllerInstance
+                                .getLoginController()
+                                .rejectClient());
+                    } else {
+                        Platform.runLater(() -> {
+                            LoginControllerInstance
+                                    .getLoginController()
+                                    .acceptClient();
+                            waitThread.start();
+                        });
+                    }
                 }
+
                 else if (serverCheck.equals("-rejectUsername")) {
-                    System.out.println("Username Thread: Rejected username");
-                    Platform.runLater(() -> {
-                        LoginController c = LoginControllerInstance.getLoginController();
-                        c.rejectClient();
-                    });
+                    System.out.println("Username Thread: Rejected username - duplicate");
+                    Platform.runLater(() -> LoginControllerInstance
+                            .getLoginController()
+                            .rejectClient());
                 }
+
+                else if (serverCheck.equals("-full")) {
+                    System.out.println("Username Thread: Rejected username - initially full");
+                    Platform.runLater(() -> LoginControllerInstance
+                            .getLoginController()
+                            .rejectClient());
+                }
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -186,15 +210,25 @@ public class Client {
 
     private Thread waitThread() {
         return new Thread(() -> {
+            boolean canProceed = true;
+
             ClientRepository.initialize();
 
             // Filling the client list
             while (ClientRepository.getClientList().size() < 2) {
                 try {
-                    String client = mReader.readUTF();
-                    System.out.println("Wait thread: " + client);
-                    if (!ClientRepository.containsClient(client))
-                        ClientRepository.addClient(client);
+                    String serverMessage = mReader.readUTF();
+
+                    System.out.println("Wait thread: " + serverMessage);
+
+                    if (serverMessage.equals("-full")) {
+                        canProceed = false;
+                        Platform.runLater(() ->
+                                LoginControllerInstance.getLoginController().rejectClient());
+                    } else {
+                        if (!ClientRepository.containsClient(serverMessage))
+                            ClientRepository.addClient(serverMessage);
+                    }
                 } catch (IOException e) {
                     break;
                 }
@@ -202,21 +236,25 @@ public class Client {
 
             System.out.println("Wait thread: After loop");
 
-            // Choosing the other client
-            otherClient = (ClientRepository.getClientList().get(0).equals(mUsername)) ?
-                    ClientRepository.getClientList().get(1) :
-                    ClientRepository.getClientList().get(0);
+            if (canProceed) {
+                // Choosing the other client
+                otherClient = (ClientRepository.getClientList().get(0).equals(mUsername)) ?
+                        ClientRepository.getClientList().get(1) :
+                        ClientRepository.getClientList().get(0);
 
-            // Show the chat pane
-            Platform.runLater(() -> {
-                ChatController controller = ControllerInstance.getChatController();
-                controller.showChat(otherClient);
-                System.out.println("App thread: Show chat");
-            });
+                // Show the chat pane
+                Platform.runLater(() -> {
+                    ChatController controller = ControllerInstance.getChatController();
+                    controller.showChat(otherClient);
+                    System.out.println("App thread: Show chat");
+                });
 
-            // Start the send and read threads
-            sendMessage.start();
-            readMessage.start();
+                // Start the send and read threads
+                sendMessage.start();
+                readMessage.start();
+            } else {
+
+            }
         });
     }
 
@@ -245,12 +283,13 @@ public class Client {
                     MessageRepository.setNoChange();
                 }
             }
+            System.out.println("Send Message: stop");
         });
     }
 
     private Thread readMessage() {
         return new Thread(() -> {
-            System.out.println("read Message: start");
+            System.out.println("Read Message: start");
             while (running.get()) {
                 while (!MessageRepository.getLastMessage().equals("-logout")) {
                     try {
@@ -262,7 +301,6 @@ public class Client {
                                 st.nextToken() :
                                 "";
 
-                        System.out.println("read thread message:" + message);
                         System.out.println("Command: " + command);
 
                         if (command.equals("-disconnect")) {
@@ -295,6 +333,7 @@ public class Client {
                     }
                 }
             }
+            System.out.println("Read Message: stop");
         });
     }
 }

@@ -40,8 +40,9 @@ public class LoginController {
 
             try {
                 System.out.println("LoginController: Enter login()");
-                if (client == null)
-                    client = new Client(username, ip, portNum); // username remains the same
+//                if (client == null) // for initial logins TODO: Return this
+
+                client = new Client(username, ip, portNum);
                 client.setUsername(username);
                 client.initialize();
             } catch (ConnectException e) {
@@ -78,6 +79,10 @@ public class LoginController {
             ChatController c = (ChatController) Main.changeScene("views/chat.fxml");
             ControllerInstance.setChatController(c);
         } catch (Exception e) {}
+    }
+
+    public void resetClient() {
+        client = null;
     }
 
     private void createErrorMessage(HBox parent, Label label, String message) {
