@@ -12,7 +12,6 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.OverrunStyle;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -22,6 +21,7 @@ import javafx.stage.Stage;
 
 import java.io.*;
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class ChatController implements Initializable {
@@ -64,14 +64,15 @@ public class ChatController implements Initializable {
         FileChooser fc = new FileChooser();
         Stage stage = Main.getPrimaryStage();
         File file = fc.showOpenDialog(stage);
-        createMessageItem(Constants.FILE, Constants.SEND, String.valueOf(file));
+        if (file != null) {
+            createMessageItem(Constants.FILE, Constants.SEND, String.valueOf(file));
 
-        String path = String.valueOf(file);
-        String fileSendMessage = String.format("-sendFile %s", path); // ex: -sendFile file.txt
+            String path = String.valueOf(file);
+            String fileSendMessage = String.format("-sendFile %s", path); // ex: -sendFile file.txt
 
-        // Send this to server
-        MessageRepository.addMessage(fileSendMessage);
-//        System.out.println("Last message: " + MessageRepository.getLastMessage());
+            // Send this to server
+            MessageRepository.addMessage(fileSendMessage);
+        }
     }
 
     @FXML
@@ -94,8 +95,10 @@ public class ChatController implements Initializable {
 
     public void receiveMessage(String message) {
         if (message.length() > 0) {
-            message = message.split(":")[1];
-            createMessageItem(Constants.TEXT, Constants.RECEIVE, message);
+            if (message.split(":")[1] != null) {
+                message = message.split(":")[1];
+                createMessageItem(Constants.TEXT, Constants.RECEIVE, message);
+            }
         }
     }
 
@@ -128,25 +131,25 @@ public class ChatController implements Initializable {
         FileChooser fc = new FileChooser();
         fc.setTitle("Save File");
         fc.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Text Files", "*.txt")
+            new FileChooser.ExtensionFilter("Text or Image Files", "*.txt", "*.jpg", "*png")
         );
 
         File savedFile = fc.showSaveDialog(Main.getPrimaryStage());
-        String path = savedFile.getPath();
+        if (savedFile != null) {
+            String path = savedFile.getPath();
+            System.out.println("Path: " + path);
 
-        System.out.println("Path: " + path);
+            // Write file locally
+            try {
+                List<byte[]> fileContent = FileRepository.getFileContent();
+                FileOutputStream writer = new FileOutputStream(path);
+                for (byte[] chunk : fileContent)
+                    writer.write(chunk, 0, chunk.length);
 
-
-        // Write file locally
-        String fileContent = FileRepository.getFileContent();
-        System.out.println(fileContent);
-
-        try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(path));
-            writer.write(fileContent);
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+                writer.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -196,8 +199,16 @@ public class ChatController implements Initializable {
     }
 
     private Node createFileMessageItem(String path, int action) {
-        String filename = "File Object";
+        String extension = "";
+        if (path != null) {
+            extension = path.substring(path.lastIndexOf('.') + 1);
+        }
 
+        boolean isImage = extension.equals("jpg") || extension.equals("png");
+
+        String filename = isImage ? "Image File" : "Text File";
+
+        // Use the local file name if sending
         if (action == Constants.SEND) {
             File file = new File(path);
             filename = file.getName();

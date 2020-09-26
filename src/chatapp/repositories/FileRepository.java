@@ -1,13 +1,15 @@
 package chatapp.repositories;
 
-public class FileRepository {
-    private static volatile String fileContent;
+import java.util.List;
 
-    public static synchronized void setFileContent(String content) {
+public class FileRepository {
+    private static volatile List<byte[]> fileContent;
+
+    public static synchronized void setCurrentFile(List<byte[]> content) {
         fileContent = content;
     }
 
-    public static synchronized String getFileContent() {
+    public static synchronized List<byte[]> getFileContent() {
         return fileContent;
     }
 }

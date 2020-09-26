@@ -8,7 +8,6 @@ import chatapp.repositories.FileRepository;
 import chatapp.repositories.MessageRepository;
 import javafx.application.Platform;
 
-import javax.naming.ldap.Control;
 import java.io.*;
 import java.net.Socket;
 import java.util.*;
@@ -80,6 +79,7 @@ public class Client {
             BufferedInputStream bis = new BufferedInputStream(fileInput);
             int bytes = (int) fileInput.getChannel().size();
 
+            // Form the message to send to server
             String extension = mFilePath.substring(mFilePath.lastIndexOf('.') + 1);
             String fileSendMessage =
                 String.format("%s:-sendFile:%d:%s ", mUsername, bytes, extension);
@@ -102,16 +102,14 @@ public class Client {
     }
 
     private void receiveFile(String path, String extension, int bytes) throws IOException {
-        StringBuilder fileContent = new StringBuilder();
-
         // Get the chunks of bytes from the server
         byte[] b = new byte[1500];
+        List<byte[]> fileContent = new ArrayList<>();
         int bytesRead = 0;
         int totalBytes = 0;
         while (totalBytes < bytes) {
             bytesRead = mReader.read(b);
-            String converted = new String(b);
-            fileContent.append(converted);
+            fileContent.add(b);
             totalBytes += bytesRead;
         }
 
@@ -119,13 +117,10 @@ public class Client {
 
         // Create file message item in chat controller
         Platform.runLater(() -> {
+            FileRepository.setCurrentFile(fileContent);
             ControllerInstance
                     .getChatController()
                     .createMessageItem(Constants.FILE, Constants.RECEIVE, mFilePath);
-
-            // Save the file to client application
-            System.out.println("File Content - Client.java" + fileContent.toString());
-            FileRepository.setFileContent(fileContent.toString());
         });
     }
 
