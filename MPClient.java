@@ -51,7 +51,8 @@ public class MPClient  {
                         if (st.countTokens() >= 2)
                             command = msg.substring(0, msg.indexOf(' '));
                         
-                        //FOR FILE SENDING
+                        //FOR FILE SENDING 
+                        // ex: -sendFile file.txt
                         if (command.equals("-sendFile")){
                             String path = msg.substring(msg.indexOf(' ') + 1);
                             try {
@@ -64,7 +65,7 @@ public class MPClient  {
 
                                 // Chunk the bytes then send to server
                                 byte[] b = new byte[1500]; // maximum packet size for TCP: 1500 bytes
-                                int bytesRead = 0;
+                                int bytesRead = 0;  
                                 while ((bytesRead = bis.read(b)) > 0){
                                     dosWriter.write(b, 0, bytesRead);
                                 }
@@ -109,6 +110,7 @@ public class MPClient  {
 
                             // FOR FILE RECEIVING
                             if (command.equals("-sendFile")){
+                                System.out.println(msg);
                                 //get the bytes from the server
                                 int bytes = Integer.parseInt(st.nextToken());
                                 String extension = st.nextToken();
