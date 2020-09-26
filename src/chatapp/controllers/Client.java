@@ -43,8 +43,12 @@ public class Client {
         checkUsernameThread().start();
     }
 
-    public void stopAllThreads() {
+    public synchronized void stopAllThreads() {
 //        running.set(false);
+        waitThread.interrupt();
+        sendMessage.interrupt();
+        readMessage.interrupt();
+
         waitThread = null;
         sendMessage = null;
         readMessage = null;
@@ -268,9 +272,8 @@ public class Client {
     }
 
     private Thread sendMessage() {
-        MessageRepository.initialize();
-
         return new Thread(() -> {
+            MessageRepository.initialize();
             System.out.println("Send Message: start");
 //            while (running.get()) {
                 while (!MessageRepository.getLastMessage().equals("-logout")) {
@@ -301,47 +304,40 @@ public class Client {
     private Thread readMessage() {
         return new Thread(() -> {
             System.out.println("Read Message: start");
-//            while (running.get()) {
-                while (!MessageRepository.getLastMessage().equals("-logout")) {
-                    try {
-                        // Tokenize the message
-                        String message = mReader.readUTF();
-                        StringTokenizer st = new StringTokenizer(message, ":");
-                        String username = st.nextToken();
-                        String command = (st.countTokens() >= 1) ?
-                                st.nextToken() :
-                                "";
+            while (!MessageRepository.getLastMessage().equals("-logout")) {
+                try {
+                    // Tokenize the message
+                    String message = mReader.readUTF();
+                    StringTokenizer st = new StringTokenizer(message, ":");
+                    String username = st.nextToken();
+                    String command = (st.countTokens() >= 1) ?
+                            st.nextToken() :
+                            "";
 
-                        System.out.println("Command: " + command);
+                    System.out.println("Command: " + command);
 
-                        if (command.equals("-disconnect")) {
+                    if (command.equals("-disconnect")) {
+                        Platform.runLater(() ->
+                                ControllerInstance.getChatController().onPartnerDisconnect());
+                    } else if (command.equals("-reconnect")) {
+                        Platform.runLater(() ->
+                                ControllerInstance.getChatController().onPartnerReconnect());
+                    } else if (command.equals("-sendFile")) {
+                        int bytes = Integer.parseInt(st.nextToken());
+                        String extension = st.nextToken();
+                        System.out.println("(Server: '" + username + "' is sending you a " + extension + " file)");
+
+                        receiveFile(mFilePath, extension, bytes);
+                    } else { // Receive a text message
+                        if (!command.equals("-ownReconnect"))
                             Platform.runLater(() ->
-                                    ControllerInstance.getChatController().onPartnerDisconnect());
-                        }
-
-                        else if (command.equals("-reconnect")) {
-                            Platform.runLater(() ->
-                                    ControllerInstance.getChatController().onPartnerReconnect());
-                        }
-
-                        else if (command.equals("-sendFile")) {
-                            int bytes = Integer.parseInt(st.nextToken());
-                            String extension = st.nextToken();
-                            System.out.println("(Server: '" + username + "' is sending you a " + extension + " file)");
-
-                            receiveFile(mFilePath, extension, bytes);
-                        }
-
-                        else { // Receive a text message
-                            if (!command.equals("-ownReconnect"))
-                                Platform.runLater(() ->
-                                        ControllerInstance.getChatController().receiveMessage(message));
-                        }
-                    } catch (EOFException eof) {
-                        break;
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                                    ControllerInstance.getChatController().receiveMessage(message));
                     }
+                } catch (EOFException eof) {
+                    break;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 //                }
             }
             System.out.println("Read Message: stop");

@@ -41,6 +41,10 @@ public class LoginController {
 
             try {
                 System.out.println("LoginController: Enter login()");
+
+//                if (client != null)
+//                    client.stopAllThreads();
+
                 client = new Client(username, ip, portNum);
                 client.initialize();
             } catch (ConnectException e) {
@@ -66,6 +70,7 @@ public class LoginController {
     public void rejectClient() {
         System.out.println("View thread: Rejected client");
         createErrorMessage(hbUsername, lblUsername, "  That username is already taken.");
+        client.stopAllThreads();
     }
 
     public void acceptClient() {

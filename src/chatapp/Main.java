@@ -59,7 +59,6 @@ public class Main extends Application {
 
     public static void logout() {
         MessageRepository.addMessage("-logout");
-        System.out.println("Main.logout() Last message: " + MessageRepository.getLastMessage());
 
         Client thisClient = ClientRepository.getThisClient();
         if (thisClient != null) {
@@ -69,6 +68,9 @@ public class Main extends Application {
         ClientRepository.clearClients();
         ClientRepository.resetThisClient();
         MessageRepository.clearMessages();
+
+        System.gc();
+        Runtime.getRuntime().gc();
     }
 
     public static void main(String[] args) {
