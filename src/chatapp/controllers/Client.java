@@ -126,10 +126,9 @@ public class Client {
         Platform.runLater(() -> {
             FileChooser fc = new FileChooser();
             fc.setTitle("You have received a file!");
+            String[] filters = {"*.jpg", "*.png", "*.txt"};
             fc.getExtensionFilters().addAll(
-//                new FileChooser.ExtensionFilter("Text or Image Files", "*.jpg"),
-//                new FileChooser.ExtensionFilter("Text or Image Files", "*.png"),
-                new FileChooser.ExtensionFilter("Text or Image Files", "*.txt")
+                new FileChooser.ExtensionFilter("Text or Image Files", filters)
             );
 
             File savedFile = fc.showSaveDialog(Main.getPrimaryStage());
