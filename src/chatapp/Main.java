@@ -12,14 +12,19 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import java.io.IOException;
+
 public class Main extends Application {
     private static Stage mPrimaryStage;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        initialize(primaryStage);
+    }
+
+    public static void initialize(Stage primaryStage) throws IOException {
         mPrimaryStage = primaryStage;
 
-        // Initialize the login controller
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(Main.class.getResource("views/login.fxml"));
         Parent root = loader.load();
@@ -45,6 +50,7 @@ public class Main extends Application {
         });
     }
 
+
     public static Object changeScene(String fxml) throws Exception {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(Main.class.getResource(fxml));
@@ -59,18 +65,9 @@ public class Main extends Application {
 
     public static void logout() {
         MessageRepository.addMessage("-logout");
-
-        Client thisClient = ClientRepository.getThisClient();
-        if (thisClient != null) {
-            thisClient.stopAllThreads();
-        }
-
         ClientRepository.clearClients();
         ClientRepository.resetThisClient();
         MessageRepository.clearMessages();
-
-        System.gc();
-        Runtime.getRuntime().gc();
     }
 
     public static void main(String[] args) {

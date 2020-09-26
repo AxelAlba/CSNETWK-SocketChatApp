@@ -6,6 +6,8 @@ import chatapp.repositories.ClientRepository;
 import chatapp.repositories.FileRepository;
 import chatapp.repositories.LoginControllerInstance;
 import chatapp.repositories.MessageRepository;
+import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
@@ -70,9 +72,17 @@ public class ChatController implements Initializable {
 
     @FXML
     private void logout() throws Exception {
-        Main.logout();
-        LoginController c = (LoginController) Main.changeScene("views/login.fxml");
-        LoginControllerInstance.setLoginController(c);
+        MessageRepository.addMessage("-logout");
+        System.out.println("Controller last message: " + MessageRepository.getLastMessage());
+
+        ClientRepository.clearClients();
+        ClientRepository.resetThisClient();
+        MessageRepository.clearMessages();
+
+        Main.getPrimaryStage().close();
+        Main.initialize(Main.getPrimaryStage());
+//        LoginController c = (LoginController) Main.changeScene("views/login.fxml");
+//        LoginControllerInstance.setLoginController(c);
     }
 
     @Override
