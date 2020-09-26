@@ -42,7 +42,7 @@
          <ImageView fitHeight="25.0" fitWidth="24.0" layoutX="25.0" layoutY="23.0" onMouseClicked="#uploadFile" pickOnBounds="true" preserveRatio="true" styleClass="btn" AnchorPane.bottomAnchor="25.0" AnchorPane.leftAnchor="25.0" AnchorPane.topAnchor="25.0">
             <Image url="@../assets/file.png" />
          </ImageView>
-         <ImageView fitHeight="25.0" fitWidth="29.0" layoutX="69.0" layoutY="24.0" onMouseClicked="#uploadImage" pickOnBounds="true" preserveRatio="true" styleClass="btn" AnchorPane.bottomAnchor="25.0" AnchorPane.leftAnchor="69.0" AnchorPane.topAnchor="27.0">
+         <ImageView fitHeight="25.0" fitWidth="29.0" layoutX="69.0" layoutY="24.0" onMouseClicked="#uploadFile" pickOnBounds="true" preserveRatio="true" styleClass="btn" AnchorPane.bottomAnchor="25.0" AnchorPane.leftAnchor="69.0" AnchorPane.topAnchor="27.0">
             <Image url="@../assets/image.png" />
          </ImageView>
          <TextField fx:id="chatInput" layoutX="117.0" layoutY="23.0" onAction="#sendMessage" prefHeight="27.0" prefWidth="615.0" promptText="Write a message..." styleClass="input" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="117.0" AnchorPane.topAnchor="20.0" />

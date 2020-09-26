@@ -2,11 +2,13 @@ package chatapp.controllers;
 
 
 import chatapp.Constants;
+import chatapp.Main;
 import chatapp.repositories.ClientRepository;
 import chatapp.repositories.ControllerInstance;
 import chatapp.repositories.FileRepository;
 import chatapp.repositories.MessageRepository;
 import javafx.application.Platform;
+import javafx.stage.FileChooser;
 
 import java.io.*;
 import java.net.Socket;
@@ -109,18 +111,46 @@ public class Client {
         int totalBytes = 0;
         while (totalBytes < bytes) {
             bytesRead = mReader.read(b);
-            fileContent.add(b);
+
+            byte[] chunk = new byte[bytesRead];
+            for (int i=0; i < bytesRead; i++)
+                chunk[i] = b[i];
+
+            fileContent.add(chunk);
             totalBytes += bytesRead;
         }
 
         System.out.println("(Server: " + "received" + "." + extension + " downloaded)");
 
-        // Create file message item in chat controller
+        // Trigger a file chooser from the view
         Platform.runLater(() -> {
-            FileRepository.setCurrentFile(fileContent);
+            FileChooser fc = new FileChooser();
+            fc.setTitle("You have received a file!");
+            fc.getExtensionFilters().addAll(
+//                new FileChooser.ExtensionFilter("Text or Image Files", "*.jpg"),
+//                new FileChooser.ExtensionFilter("Text or Image Files", "*.png"),
+                new FileChooser.ExtensionFilter("Text or Image Files", "*.txt")
+            );
+
+            File savedFile = fc.showSaveDialog(Main.getPrimaryStage());
+            if (savedFile != null) {
+                String filePath = savedFile.getPath();
+
+                // Write file locally
+                try {
+                    FileOutputStream writer = new FileOutputStream(filePath);
+                    for (byte[] chunk : fileContent)
+                        writer.write(chunk, 0, chunk.length);
+
+                    writer.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
             ControllerInstance
                     .getChatController()
-                    .createMessageItem(Constants.FILE, Constants.RECEIVE, mFilePath);
+                    .createMessageItem(Constants.TEXT, Constants.RECEIVE, "File received and downloaded.");
         });
     }
 

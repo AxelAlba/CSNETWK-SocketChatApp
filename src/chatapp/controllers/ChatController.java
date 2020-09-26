@@ -52,14 +52,6 @@ public class ChatController implements Initializable {
     }
 
     @FXML
-    private void uploadImage() {
-        FileChooser fc = new FileChooser();
-        Stage stage = Main.getPrimaryStage();
-        File file = fc.showOpenDialog(stage);
-        createMessageItem(Constants.IMAGE, Constants.SEND, String.valueOf(file));
-    }
-
-    @FXML
     private void uploadFile() {
         FileChooser fc = new FileChooser();
         Stage stage = Main.getPrimaryStage();
@@ -131,7 +123,7 @@ public class ChatController implements Initializable {
         FileChooser fc = new FileChooser();
         fc.setTitle("Save File");
         fc.getExtensionFilters().addAll(
-            new FileChooser.ExtensionFilter("Text or Image Files", "*.txt", "*.jpg", "*png")
+            new FileChooser.ExtensionFilter("Text or Image Files", "*.jpg", "*png")
         );
 
         File savedFile = fc.showSaveDialog(Main.getPrimaryStage());
