@@ -1,0 +1,21 @@
+<component name="ArtifactManager">
+  <artifact type="javafx" name="CSNETWK-Chat-App">
+    <output-path>$PROJECT_DIR$/out/artifacts/CSNETWK_Chat_App</output-path>
+    <properties id="javafx-properties">
+      <options>
+        <option name="appClass" value="main.chatapp.Main" />
+        <option name="description" value="" />
+        <option name="htmlPlaceholderId" value="" />
+        <option name="nativeBundle" value="exe" />
+        <option name="title" value="De La Salle Usap" />
+        <option name="vendor" value="" />
+        <option name="version" value="" />
+      </options>
+    </properties>
+    <root id="root">
+      <element id="archive" name="CSNETWK_Chat_App.jar">
+        <element id="module-output" name="CSNETWK-Chat-App" />
+      </element>
+    </root>
+  </artifact>
+</component>

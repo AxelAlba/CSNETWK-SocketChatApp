@@ -1,6 +1,6 @@
-package chatapp.controllers;
+package main.chatapp.controllers;
 
-import chatapp.Main;
+import main.chatapp.Main;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
@@ -13,33 +13,53 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class ImageObject {
     private double mHeight, mWidth;
     private final ImageView mImageView;
 
     public ImageObject(String imagePath, double factor, boolean roundCorners) {
-        Image image = new Image("file:///" + imagePath);
+//        Image image = new Image("file:///" + imagePath);
+        Image image = null;
+        try {
+            image = new Image(getClass().getResource(imagePath).toURI().toString());
+            System.out.println("Image created: " + image);
+        } catch (URISyntaxException e) {
+            System.out.println("\n\n Image not found \n\n" + imagePath);
+            e.printStackTrace();
+        }
+
         mImageView = new ImageView(image);
 
-        this.setImageDimensions(image, factor);
+        if (image != null) {
+            this.setImageDimensions(image, factor);
 
-        mImageView.getStyleClass().add("cursor-hand");
-        mImageView.setFitHeight(mHeight);
-        mImageView.setFitWidth(mWidth);
-        mImageView.setSmooth(true);
-        mImageView.setPreserveRatio(true);
-        mImageView.setCache(true);
+            mImageView.getStyleClass().add("cursor-hand");
+            mImageView.setFitHeight(mHeight);
+            mImageView.setFitWidth(mWidth);
+            mImageView.setSmooth(true);
+            mImageView.setPreserveRatio(true);
+            mImageView.setCache(true);
 
-        if (roundCorners)
-            setRoundCorners(50);
+            if (roundCorners)
+                setRoundCorners(50);
+        }
     }
 
     public ImageObject(String path, double height, double width) {
         mHeight = height;
         mWidth = width;
 
-        Image image = new Image(path);
+        Image image = null;
+        try {
+            URI uriPath = getClass().getResource(path).toURI();
+            image = new Image(uriPath.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         mImageView = new ImageView(image);
 
         mImageView.setFitHeight(height);

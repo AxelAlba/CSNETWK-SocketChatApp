@@ -1,29 +1,32 @@
-package chatapp.controllers;
+package main.chatapp.controllers;
 
 
-import chatapp.Constants;
-import chatapp.Main;
-import chatapp.repositories.*;
 import javafx.application.Platform;
 import javafx.stage.FileChooser;
+import main.chatapp.Constants;
+import main.chatapp.Main;
+import main.chatapp.repositories.ClientRepository;
+import main.chatapp.repositories.ControllerInstance;
+import main.chatapp.repositories.LoginControllerInstance;
+import main.chatapp.repositories.MessageRepository;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
 
 public class Client {
     private String mUsername;
     private String mFilePath;
+    private String otherClient;
+
     private DataInputStream mReader;
     private DataOutputStream mWriter;
     private final Socket mClientEndpoint;
     private Thread sendMessage;
     private Thread readMessage;
     private Thread waitThread;
-    private final AtomicBoolean running;
-
-    private String otherClient;
 
 
     public Client(String username, String host, int serverPort) throws IOException {
@@ -35,8 +38,6 @@ public class Client {
         waitThread = waitThread();
         sendMessage = sendMessage();
         readMessage = readMessage();
-
-        running = new AtomicBoolean(true);
     }
 
     public void initialize() {
@@ -95,6 +96,7 @@ public class Client {
 
             bis.close();
         } catch(Exception e) {
+            System.out.println("\n\n Image not found \n\n" + mFilePath);
             e.printStackTrace();
         }
     }
@@ -127,20 +129,22 @@ public class Client {
                 new FileChooser.ExtensionFilter("Text or Image Files", filters)
             );
 
-            File savedFile = fc.showSaveDialog(Main.getPrimaryStage());
-            if (savedFile != null) {
-                String filePath = savedFile.getPath();
+            File savedFile;
+            do {
+                savedFile = fc.showSaveDialog(Main.getPrimaryStage());
+            } while (savedFile == null);
 
-                // Write file locally
-                try {
-                    FileOutputStream writer = new FileOutputStream(filePath);
-                    for (byte[] chunk : fileContent)
-                        writer.write(chunk, 0, chunk.length);
+            String filePath = savedFile.getPath();
 
-                    writer.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            // Write file locally
+            try {
+                FileOutputStream writer = new FileOutputStream(filePath);
+                for (byte[] chunk : fileContent)
+                    writer.write(chunk, 0, chunk.length);
+
+                writer.close();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
 
             ControllerInstance

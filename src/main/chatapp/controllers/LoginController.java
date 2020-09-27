@@ -1,10 +1,8 @@
-package chatapp.controllers;
+package main.chatapp.controllers;
 
-import chatapp.Main;
-import chatapp.repositories.ClientRepository;
-import chatapp.repositories.ControllerInstance;
-import chatapp.repositories.MessageRepository;
-import javafx.application.Platform;
+import main.chatapp.Main;
+import main.chatapp.repositories.ControllerInstance;
+import main.chatapp.repositories.ClientRepository;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;

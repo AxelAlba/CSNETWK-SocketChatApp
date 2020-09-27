@@ -1,6 +1,6 @@
-package chatapp.repositories;
+package main.chatapp.repositories;
 
-import chatapp.controllers.LoginController;
+import main.chatapp.controllers.LoginController;
 
 public class LoginControllerInstance {
     private static LoginController loginController = null;

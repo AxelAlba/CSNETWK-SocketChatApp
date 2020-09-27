@@ -1,4 +1,4 @@
-package chatapp;
+package main.chatapp;
 
 public interface Constants {
     int SEND = 0;

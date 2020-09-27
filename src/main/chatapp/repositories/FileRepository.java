@@ -1,4 +1,4 @@
-package chatapp.repositories;
+package main.chatapp.repositories;
 
 import java.util.List;
 

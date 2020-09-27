@@ -1,13 +1,10 @@
-package chatapp.controllers;
+package main.chatapp.controllers;
 
-import chatapp.Constants;
-import chatapp.Main;
-import chatapp.repositories.ClientRepository;
-import chatapp.repositories.FileRepository;
-import chatapp.repositories.LoginControllerInstance;
-import chatapp.repositories.MessageRepository;
-import javafx.application.Application;
-import javafx.application.Platform;
+import main.chatapp.Main;
+import main.chatapp.repositories.FileRepository;
+import main.chatapp.Constants;
+import main.chatapp.repositories.ClientRepository;
+import main.chatapp.repositories.MessageRepository;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;

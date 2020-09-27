@@ -1,6 +1,6 @@
-package chatapp.repositories;
+package main.chatapp.repositories;
 
-import chatapp.controllers.Client;
+import main.chatapp.controllers.Client;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;

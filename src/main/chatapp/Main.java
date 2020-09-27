@@ -1,10 +1,8 @@
-package chatapp;
+package main.chatapp;
 
-import chatapp.controllers.Client;
-import chatapp.controllers.LoginController;
-import chatapp.repositories.ClientRepository;
-import chatapp.repositories.LoginControllerInstance;
-import chatapp.repositories.MessageRepository;
+import main.chatapp.repositories.ClientRepository;
+import main.chatapp.repositories.LoginControllerInstance;
+import main.chatapp.repositories.MessageRepository;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
