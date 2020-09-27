@@ -311,12 +311,12 @@ public class Client {
                             Platform.runLater(() ->
                                     ControllerInstance
                                             .getChatController()
-                                            .receiveMessage("Server: Your message failed to send"));
+                                            .receiveMessage("Server: (Server - Your message failed to send)"));
                         } else if (command.equals("-fileFailed")) {
                             Platform.runLater(() ->
                                     ControllerInstance
                                             .getChatController()
-                                            .receiveMessage("Server: Your file failed to send"));
+                                            .receiveMessage("Server: (Server - Your file failed to send)"));
                         } else { // Receive a text message
                             if (!command.equals("-ownReconnect"))
                                 Platform.runLater(() ->
