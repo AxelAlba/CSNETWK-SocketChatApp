@@ -161,7 +161,7 @@ public class MPServer {
                                 }
                                 timeStamp = new SimpleDateFormat("yyyy.MM.dd HH.mm.ss").format(new Date());
                                 System.out.println("Server: '"+username+"' has reconnected to the server. ("+timeStamp+")"); 
-                                logs += "Server: '"+username+"' has reconnected to the server. ("+timeStamp+")\n";
+                                logs.add("Server: '"+username+"' has reconnected to the server. ("+timeStamp+")\n");
                                 break; 
                             } 
                         } 
