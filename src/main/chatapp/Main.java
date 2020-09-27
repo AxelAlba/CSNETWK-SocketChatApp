@@ -63,6 +63,8 @@ public class Main extends Application {
 
     public static void logout() {
         MessageRepository.addMessage("-logout");
+        System.out.println("Controller last message: " + MessageRepository.getLastMessage());
+
         ClientRepository.clearClients();
         ClientRepository.resetThisClient();
         MessageRepository.clearMessages();
