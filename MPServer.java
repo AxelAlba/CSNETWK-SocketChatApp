@@ -37,8 +37,6 @@ public class MPServer {
            
                 // accepting the incoming request
                 if(activeClients.size() < 2) {
-                    System.out.println("activeclients < 2");
-
                     serverEndpoint = serverSocket.accept();
                     disReader = new DataInputStream(serverEndpoint.getInputStream());
                     dosWriter = new DataOutputStream(serverEndpoint.getOutputStream());
@@ -51,10 +49,7 @@ public class MPServer {
 
                     if (activeClients.size() == 1) {
                         if (MPServer.activeClients.get(0).name.equals(username)) {
-                            System.out.println("First time: Same client");
                             while (!isAccepted) {
-                                System.out.println("First time: Inside while loop");
-        
                                 dosWriter.writeUTF("-rejectUsername");
 
                                 serverEndpoint = serverSocket.accept();
@@ -62,26 +57,20 @@ public class MPServer {
                                 dosWriter = new DataOutputStream(serverEndpoint.getOutputStream());
 
                                 username = disReader.readUTF();
-                                System.out.println("First time: Reading " + username);
                                 
                                 if (!MPServer.activeClients.get(0).name.equals(username)){
-                                    System.out.println("First time: Accepting inside loop");
                                     isAccepted = true;
                                     dosWriter.writeUTF("-acceptUsername");
                                 }
                             }
                         }
                         else {
-                            System.out.println("First time: Accepting unique client");
                             isAccepted = true;
                             dosWriter.writeUTF("-acceptUsername");
-                            System.out.println("First time: After send -acceptUsername");
                         }
                     }
                     else {
-                        System.out.println("First time: Accepting because > 1");
                         dosWriter.writeUTF("-acceptUsername");                  
-                        System.out.println("First time: After send -acceptUsername");
                     }
 
                     // creating the handler
@@ -117,13 +106,6 @@ public class MPServer {
                     // to check the username sent by the client
                     username = disReader.readUTF();
 
-                    System.out.println("\n\nReconnecting Username: " + username);
-                    System.out.println("activeClients.size(): " + activeClients.size());
-                    System.out.println("Server active clients: " + 
-                        MPServer.activeClients.get(0).name + " " + 
-                        MPServer.activeClients.get(1).name);
-
-
                     // for uniqueness of username
                     boolean isExistingClient = 
                         MPServer.activeClients.get(0).name.equals(username) || 
@@ -131,8 +113,7 @@ public class MPServer {
                     
 
                     // This is a foreign client
-                    if (!isExistingClient) { 
-                        System.out.println("Foreign client");
+                    if (!isExistingClient) {
                         while (!isExistingClient) { 
                             dosWriter.writeUTF("-full");
 
@@ -142,10 +123,6 @@ public class MPServer {
                             dosWriter = new DataOutputStream(serverEndpoint.getOutputStream());
                             
                             username = disReader.readUTF(); // Keep checking until username belongs to client list
-                            
-                            System.out.println("Server: After read username - " + username);
-                            System.out.println("Server: isExistingClient = " + isExistingClient);
-
                             isExistingClient = 
                                 MPServer.activeClients.get(0).name.equals(username) || 
                                 MPServer.activeClients.get(1).name.equals(username);
@@ -157,8 +134,6 @@ public class MPServer {
                     for (ClientHandler client : MPServer.activeClients) {
                         if (client.name.equals(username)) {
                             if (!client.isActive.get()) {
-                                // To align to client side's checking for -full or -enter
-                                System.out.println("Reconnecting: Not full, can enter");
                                 dosWriter.writeUTF("-acceptUsername");
 
                                 //client reconnects here                          
@@ -179,7 +154,7 @@ public class MPServer {
                                 for (ClientHandler client2 : MPServer.activeClients)  
                                 { 
                                     if (!(client2.name.equals(username))) { 
-                                        if(client2.isActive.get()){
+                                        if (client2.isActive.get()) {
                                             client2.dosWriter.writeUTF(client.name+":"+"-reconnect"); 
                                             break;
                                         }
@@ -196,8 +171,7 @@ public class MPServer {
 
                     // For clients who are already active
                     if (isPastUser == false) {
-                      System.out.println("Reconnecting: client is already active");
-                      dosWriter.writeUTF("-activeClient");
+                        dosWriter.writeUTF("-activeClient");
                     }
                 }
 
@@ -224,7 +198,6 @@ class ClientHandler implements Runnable
     DataInputStream disReader;
     DataOutputStream dosWriter;
     Socket s;
-    // boolean isActive;
     AtomicBoolean isActive;
 
     // constructor
@@ -233,12 +206,10 @@ class ClientHandler implements Runnable
         this.dosWriter = dosWriter; 
         this.name = name; 
         this.s = s; 
-        // this.isActive = true;
         this.isActive = new AtomicBoolean(true);
     }
 
     public void reconnect(Socket s, DataInputStream disReader, DataOutputStream dosWriter){
-        System.out.println("Reconnected");
         this.disReader = disReader; 
         this.dosWriter = dosWriter;
         this.s = s; 
@@ -247,14 +218,12 @@ class ClientHandler implements Runnable
 
     @Override
     public void run() { 
-  
         String received; 
         String timeStamp;
         while (true)  { 
             try{ 
                 // receive the string from the clients
                 received = disReader.readUTF(); 
-                System.out.println("From Server: " + received);
 
                 // break the string into message and recipient part 
                 StringTokenizer st = new StringTokenizer(received, ":");
@@ -340,7 +309,7 @@ class ClientHandler implements Runnable
 
                                     // get a copy of the file for the server
                                     File file = new File("serverFile."+extension);
-                                    FileOutputStream out = new  FileOutputStream(file);
+                                    FileOutputStream out = new FileOutputStream(file);
                                     byte[] b = new byte[1500];
                                     int bytesRead = 0;
                                     int totalBytes = 0;
@@ -434,7 +403,6 @@ class ClientHandler implements Runnable
         } 
         try{ 
             // closing the disReader and dosWriter of a certain Client.
-            System.out.println("ClientHandler: Closing reader and writer");
             this.disReader.close(); 
             this.dosWriter.close();     
         }
