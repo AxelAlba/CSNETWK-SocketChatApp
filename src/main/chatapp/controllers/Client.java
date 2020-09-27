@@ -149,7 +149,8 @@ public class Client {
 
             ControllerInstance
                     .getChatController()
-                    .createMessageItem(Constants.TEXT, Constants.RECEIVE, "File received and downloaded.");
+                    .createMessageItem(Constants.TEXT, Constants.RECEIVE, 
+                            "Server: File successfully received and downloaded.");
         });
     }
 
@@ -306,6 +307,16 @@ public class Client {
                             System.out.println("(Server: '" + username + "' is sending you a " + extension + " file)");
 
                             receiveFile(mFilePath, extension, bytes);
+                        } else if (command.equals("-messageFailed")) {
+                            Platform.runLater(() ->
+                                    ControllerInstance
+                                            .getChatController()
+                                            .receiveMessage("Server: Your message failed to send"));
+                        } else if (command.equals("-fileFailed")) {
+                            Platform.runLater(() ->
+                                    ControllerInstance
+                                            .getChatController()
+                                            .receiveMessage("Server: Your file failed to send"));
                         } else { // Receive a text message
                             if (!command.equals("-ownReconnect"))
                                 Platform.runLater(() ->
