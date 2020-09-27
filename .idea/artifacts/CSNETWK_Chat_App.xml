@@ -6,7 +6,6 @@
         <option name="appClass" value="main.chatapp.Main" />
         <option name="description" value="" />
         <option name="htmlPlaceholderId" value="" />
-        <option name="nativeBundle" value="exe" />
         <option name="title" value="De La Salle Usap" />
         <option name="vendor" value="" />
         <option name="version" value="" />

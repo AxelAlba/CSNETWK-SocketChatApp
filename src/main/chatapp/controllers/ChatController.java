@@ -1,5 +1,7 @@
 package main.chatapp.controllers;
 
+import javafx.scene.control.Control;
+import javafx.scene.layout.Region;
 import main.chatapp.Main;
 import main.chatapp.repositories.FileRepository;
 import main.chatapp.Constants;
@@ -172,6 +174,8 @@ public class ChatController implements Initializable {
     private Node createTextMessageItem(String text, int action) {
         Label messageText = new Label(text);
         messageText.getStyleClass().add("message-box");
+        messageText.setMinHeight(Region.USE_PREF_SIZE);
+//        messageText.setMinWidth(Control.USE_COMPUTED_SIZE);
         messageText.setWrapText(true);
 
         if (action == Constants.SEND) {
