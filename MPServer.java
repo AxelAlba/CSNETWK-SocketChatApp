@@ -161,7 +161,7 @@ public class MPServer {
                                 }
                                 timeStamp = new SimpleDateFormat("yyyy.MM.dd HH.mm.ss").format(new Date());
                                 System.out.println("Server: '"+username+"' has reconnected to the server. ("+timeStamp+")"); 
-                                logs.add("Server: '"+username+"' has reconnected to the server. ("+timeStamp+")\n");
+                                logs.add("Server: '"+username+"' has reconnected to the server. ("+timeStamp+")");
                                 break; 
                             } 
                         } 
@@ -271,10 +271,14 @@ class ClientHandler implements Runnable
                                         }
 
                                         System.out.println("Server: Logs successfully saved to "+answer+".txt");
+                                        System.out.println("Server: Server disconnected...");
+                                        System.exit(0);
                                     }
                                     else if (answer.equalsIgnoreCase("no")){
                                         isCorrect = true;
-                                        System.out.println("Server: Logs will not be saved.");    
+                                        System.out.println("Server: Logs will not be saved.");   
+                                        System.out.println("Server: Server disconnected...");
+                                        System.exit(0); 
                                     }
                                     else {
                                         System.out.println("Invalid answer, please try again... Enter yes or no: ");
